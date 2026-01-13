@@ -6,6 +6,12 @@
 		"useIgnoreFile": true
 	},
 	"files": {
+		"includes": [
+			"src/**/*",
+			"vite.config.ts",
+			"biome.json",
+			"!src/routeTree.gen.ts"
+		],
 		"ignoreUnknown": false
 	},
 	"formatter": {
