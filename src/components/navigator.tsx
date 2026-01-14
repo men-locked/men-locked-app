@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/popover";
 import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "./ui/skeleton";
+import { useUser } from "./user-context";
 
 function ForgotPasswordDialog() {
 	const [open, setOpen] = useState(false);
@@ -278,6 +280,8 @@ function LoginButton() {
 }
 
 export default function Navigator({ className }: { className?: string }) {
+	const { user, isLoading, signOut } = useUser();
+
 	return (
 		<header
 			className={cn(
@@ -294,7 +298,13 @@ export default function Navigator({ className }: { className?: string }) {
 				<div className="flex flex-1 items-center justify-center space-x-2 md:justify-end">
 					<div className="w-full max-w-lg md:w-auto md:flex-none"></div>
 					<nav className="flex items-center space-x-2">
-						<LoginButton />
+						{isLoading ? (
+							<Skeleton className="h-8 w-20" />
+						) : user ? (
+							<Button onClick={() => signOut()}>登出</Button>
+						) : (
+							<LoginButton />
+						)}
 						<ThemeToggle />
 					</nav>
 				</div>
