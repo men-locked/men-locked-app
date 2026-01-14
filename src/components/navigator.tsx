@@ -1,8 +1,8 @@
 import type { User } from "@supabase/supabase-js";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
-import { useState } from "react";
+import { LogOut, UserIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -282,6 +282,11 @@ function LoginButton() {
 	);
 }
 
+interface Profile {
+	username: string;
+	avatar_url: string;
+}
+
 function UserProfilePopover({
 	user,
 	signOut,
@@ -289,17 +294,47 @@ function UserProfilePopover({
 	user: User;
 	signOut: () => Promise<void>;
 }) {
+	const [profile, setProfile] = useState<Profile | undefined>();
+
+	useEffect(() => {
+		const fetchProfile = async () => {
+			const { data } = await supabase
+				.from("profiles")
+				.select("username, avatar_url")
+				.eq("id", user.id)
+				.single();
+
+			if (data) {
+				setProfile(data);
+			}
+		};
+
+		fetchProfile();
+	}, [user.id]);
+
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
 				<Avatar>
-					<AvatarImage />
+					<AvatarImage src={profile?.avatar_url} />
 					<AvatarFallback>
-						{user.email?.substring(0, 2).toUpperCase()}
+						{(profile?.username || user.email)?.substring(0, 2).toUpperCase()}
 					</AvatarFallback>
 				</Avatar>
 			</PopoverTrigger>
-			<PopoverContent className="w-80" align="end">
+			<PopoverContent className="w-80 grid gap-4" align="end">
+				<div className="flex flex-col items-center gap-4">
+					<div className="w-24 h-24 rounded-full overflow-hidden border bg-muted flex items-center justify-center relative">
+						<Avatar>
+							<AvatarImage src={profile?.avatar_url} />
+							<AvatarFallback>
+								<UserIcon className="w-12 h-12 text-muted-foreground" />
+							</AvatarFallback>
+						</Avatar>
+					</div>
+
+					<h4 className="leading-none font-medium">{profile?.username}</h4>
+				</div>
 				<div className="grid">
 					<Button
 						variant="outline"
