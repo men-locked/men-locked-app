@@ -1,5 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,20 +19,30 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 function ForgotPasswordDialog() {
+	const [open, setOpen] = useState(false);
 	const form = useForm({
 		defaultValues: {
 			email: "",
 		},
-		onSubmit: (values) => {
-			console.log(values);
+		onSubmit: async (values) => {
+			const { error } = await supabase.auth.resetPasswordForEmail(
+				values.value.email,
+			);
+			if (error) {
+				toast.error(`寄發密碼重設信件失敗：${error.message}`);
+				return;
+			}
+			toast.success("密碼重設信件已寄出，請查收信箱");
+			setOpen(false);
 		},
 	});
 
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
 				忘記密碼？
 			</DialogTrigger>
@@ -38,7 +50,7 @@ function ForgotPasswordDialog() {
 				<DialogHeader className="flex flex-col gap-4">
 					<DialogTitle>寄發密碼重設認證信</DialogTitle>
 					<DialogDescription>
-						為了保護您的帳號安全，我們將會寄發一封密碼重設認證到您的電子信箱，請點擊信件中的連結進行密碼重設流程。
+						為了保護您的帳號安全，我們將會寄發一封密碼重設認證到您的電子信箱，請依照信中的指示完成密碼重設流程。
 					</DialogDescription>
 					<form
 						onSubmit={(e) => {
@@ -80,18 +92,34 @@ function ForgotPasswordDialog() {
 }
 
 function RegisterDialog() {
+	const [open, setOpen] = useState(false);
 	const form = useForm({
 		defaultValues: {
 			email: "",
 			password: "",
 		},
-		onSubmit: (values) => {
-			console.log(values);
+		onSubmit: async (values) => {
+			const { error } = await supabase.auth.signUp({
+				email: values.value.email,
+				password: values.value.password,
+				options: {
+					emailRedirectTo: `${window.location.origin}/`,
+					data: {
+						username: values.value.email.split("@")[0],
+					},
+				},
+			});
+			if (error) {
+				toast.error(`註冊失敗：${error.message}`);
+				return;
+			}
+			toast.success("註冊成功，請到電子郵件信相依指示啟用帳戶");
+			setOpen(false);
 		},
 	});
 
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button variant="outline">註冊</Button>
 			</DialogTrigger>
@@ -162,8 +190,15 @@ function LoginButton() {
 			email: "",
 			password: "",
 		},
-		onSubmit: (values) => {
-			console.log(values);
+		onSubmit: async (values) => {
+			const { error } = await supabase.auth.signInWithPassword({
+				email: values.value.email,
+				password: values.value.password,
+			});
+
+			if (error) {
+				toast.error(`登入失敗：${error.message}`);
+			}
 		},
 	});
 
@@ -222,17 +257,19 @@ function LoginButton() {
 						/>
 					</div>
 					<ForgotPasswordDialog />
-					<form.Subscribe
-						selector={(state) => [state.canSubmit, state.isSubmitting]}
-						children={([canSubmit, isSubmitting]) => (
-							<>
-								<Button type="submit" disabled={!canSubmit}>
-									{isSubmitting ? "登入中..." : "登入"}
-								</Button>
-							</>
-						)}
-					/>
-					<RegisterDialog />
+					<div className="grid grid-cols-2 gap-2">
+						<form.Subscribe
+							selector={(state) => [state.canSubmit, state.isSubmitting]}
+							children={([canSubmit, isSubmitting]) => (
+								<>
+									<Button type="submit" disabled={!canSubmit}>
+										{isSubmitting ? "登入中..." : "登入"}
+									</Button>
+								</>
+							)}
+						/>
+						<RegisterDialog />
+					</div>
 				</form>
 			</PopoverContent>
 		</Popover>
