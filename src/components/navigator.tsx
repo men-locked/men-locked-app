@@ -1,8 +1,11 @@
+import type { User } from "@supabase/supabase-js";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
+import { LogOut } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -279,6 +282,39 @@ function LoginButton() {
 	);
 }
 
+function UserProfilePopover({
+	user,
+	signOut,
+}: {
+	user: User;
+	signOut: () => Promise<void>;
+}) {
+	return (
+		<Popover>
+			<PopoverTrigger asChild>
+				<Avatar>
+					<AvatarImage />
+					<AvatarFallback>
+						{user.email?.substring(0, 2).toUpperCase()}
+					</AvatarFallback>
+				</Avatar>
+			</PopoverTrigger>
+			<PopoverContent className="w-80" align="end">
+				<div className="grid">
+					<Button
+						variant="outline"
+						onClick={() => signOut()}
+						className="text-destructive hover:text-destructive"
+					>
+						<LogOut className="mr-2 h-4 w-4" />
+						登出
+					</Button>
+				</div>
+			</PopoverContent>
+		</Popover>
+	);
+}
+
 export default function Navigator({ className }: { className?: string }) {
 	const { user, isLoading, signOut } = useUser();
 
@@ -301,7 +337,7 @@ export default function Navigator({ className }: { className?: string }) {
 						{isLoading ? (
 							<Skeleton className="h-8 w-20" />
 						) : user ? (
-							<Button onClick={() => signOut()}>登出</Button>
+							<UserProfilePopover user={user} signOut={signOut} />
 						) : (
 							<LoginButton />
 						)}
