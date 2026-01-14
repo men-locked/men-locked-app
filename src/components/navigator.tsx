@@ -2,6 +2,14 @@ import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,6 +18,143 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+
+function ForgotPasswordDialog() {
+	const form = useForm({
+		defaultValues: {
+			email: "",
+		},
+		onSubmit: (values) => {
+			console.log(values);
+		},
+	});
+
+	return (
+		<Dialog>
+			<DialogTrigger className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+				忘記密碼？
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader className="flex flex-col gap-4">
+					<DialogTitle>寄發密碼重設認證信</DialogTitle>
+					<DialogDescription>
+						為了保護您的帳號安全，我們將會寄發一封密碼重設認證到您的電子信箱，請點擊信件中的連結進行密碼重設流程。
+					</DialogDescription>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							form.handleSubmit();
+						}}
+						className="flex flex-col gap-4"
+					>
+						<form.Field
+							name="email"
+							children={(field) => (
+								<>
+									<Label htmlFor={field.name}>Email</Label>
+									<Input
+										id={field.name}
+										type="email"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										className="col-span-2 h-8"
+									/>
+								</>
+							)}
+						/>
+						<form.Subscribe
+							selector={(state) => [state.canSubmit, state.isSubmitting]}
+							children={([canSubmit, isSubmitting]) => (
+								<Button type="submit" disabled={!canSubmit}>
+									{isSubmitting ? "寄送中..." : "送出"}
+								</Button>
+							)}
+						/>
+					</form>
+				</DialogHeader>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+function RegisterDialog() {
+	const form = useForm({
+		defaultValues: {
+			email: "",
+			password: "",
+		},
+		onSubmit: (values) => {
+			console.log(values);
+		},
+	});
+
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button variant="outline">註冊</Button>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader className="flex flex-col gap-4">
+					<DialogTitle>註冊新帳號</DialogTitle>
+					<DialogDescription>
+						請填寫您的電子郵件與密碼，完成註冊流程。
+					</DialogDescription>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							form.handleSubmit();
+						}}
+						className="flex flex-col gap-4"
+					>
+						<form.Field
+							name="email"
+							children={(field) => (
+								<>
+									<Label htmlFor={field.name}>Email</Label>
+									<Input
+										id={field.name}
+										type="email"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										className="col-span-2 h-8"
+									/>
+								</>
+							)}
+						/>
+						<form.Field
+							name="password"
+							children={(field) => (
+								<>
+									<Label htmlFor={field.name}>Password</Label>
+									<Input
+										id={field.name}
+										type="password"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										className="col-span-2 h-8"
+									/>
+								</>
+							)}
+						/>
+						<form.Subscribe
+							selector={(state) => [state.canSubmit, state.isSubmitting]}
+							children={([canSubmit, isSubmitting]) => (
+								<Button type="submit" disabled={!canSubmit}>
+									{isSubmitting ? "註冊中..." : "註冊"}
+								</Button>
+							)}
+						/>
+					</form>
+				</DialogHeader>
+			</DialogContent>
+		</Dialog>
+	);
+}
 
 function LoginButton() {
 	const form = useForm({
@@ -76,6 +221,7 @@ function LoginButton() {
 							)}
 						/>
 					</div>
+					<ForgotPasswordDialog />
 					<form.Subscribe
 						selector={(state) => [state.canSubmit, state.isSubmitting]}
 						children={([canSubmit, isSubmitting]) => (
@@ -86,6 +232,7 @@ function LoginButton() {
 							</>
 						)}
 					/>
+					<RegisterDialog />
 				</form>
 			</PopoverContent>
 		</Popover>
