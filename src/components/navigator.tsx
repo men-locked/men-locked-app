@@ -31,6 +31,7 @@ function ForgotPasswordDialog() {
 		onSubmit: async (values) => {
 			const { error } = await supabase.auth.resetPasswordForEmail(
 				values.value.email,
+				{ redirectTo: `${window.location.origin}/auth/update-password` },
 			);
 			if (error) {
 				toast.error(`寄發密碼重設信件失敗：${error.message}`);

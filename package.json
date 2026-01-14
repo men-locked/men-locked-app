@@ -17,6 +17,7 @@
 		"@radix-ui/react-slot": "^1.2.4",
 		"@supabase/supabase-js": "^2.90.1",
 		"@tailwindcss/vite": "^4.1.18",
+		"@tanstack/devtools-vite": "^0.4.1",
 		"@tanstack/react-devtools": "^0.9.2",
 		"@tanstack/react-form": "^1.27.7",
 		"@tanstack/react-form-devtools": "^0.2.11",
