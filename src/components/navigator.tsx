@@ -1,3 +1,4 @@
+import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -11,13 +12,30 @@ import {
 import { cn } from "@/lib/utils";
 
 function LoginButton() {
+	const form = useForm({
+		defaultValues: {
+			email: "",
+			password: "",
+		},
+		onSubmit: (values) => {
+			console.log(values);
+		},
+	});
+
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
 				<Button variant="ghost">登入</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-80">
-				<div className="grid gap-4">
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						form.handleSubmit();
+					}}
+					className="grid gap-4"
+				>
 					<div className="space-y-2">
 						<h4 className="leading-none font-medium">登入</h4>
 						<p className="text-sm text-muted-foreground">
@@ -25,9 +43,50 @@ function LoginButton() {
 						</p>
 					</div>
 					<div className="grid gap-2">
-						
+						<form.Field
+							name="email"
+							children={(field) => (
+								<>
+									<Label htmlFor={field.name}>Email</Label>
+									<Input
+										id={field.name}
+										type="email"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										className="col-span-2 h-8"
+									/>
+								</>
+							)}
+						/>
+						<form.Field
+							name="password"
+							children={(field) => (
+								<>
+									<Label htmlFor={field.name}>Password</Label>
+									<Input
+										id={field.name}
+										type="password"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										className="col-span-2 h-8"
+									/>
+								</>
+							)}
+						/>
 					</div>
-				</div>
+					<form.Subscribe
+						selector={(state) => [state.canSubmit, state.isSubmitting]}
+						children={([canSubmit, isSubmitting]) => (
+							<>
+								<Button type="submit" disabled={!canSubmit}>
+									{isSubmitting ? "登入中..." : "登入"}
+								</Button>
+							</>
+						)}
+					/>
+				</form>
 			</PopoverContent>
 		</Popover>
 	);
