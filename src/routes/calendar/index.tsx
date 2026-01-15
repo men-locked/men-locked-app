@@ -1,7 +1,9 @@
 import type { User } from "@supabase/supabase-js";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import type { Tables } from "database.types";
 import { Check, Copy, Link } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/components/user-context";
 import { supabase } from "@/lib/supabase/client";
@@ -54,13 +56,37 @@ function ShareUrl({ user }: { user: User }) {
 
 function RouteComponent() {
 	const { user } = useUser();
+
+	const [events, setEvents] = useState<Tables<"events">[]>([]);
+	useEffect(() => {
+		if (!user) {
+			return;
+		}
+
+		const fetchEvents = async () => {
+			const { data, error } = await supabase
+				.from("events")
+				.select("*")
+				.eq("user_id", user.id);
+
+			if (error) {
+				toast.error(`無法取得資料：${error.message}`);
+				return;
+			}
+
+			setEvents(data || []);
+		};
+
+		fetchEvents();
+	}, [user]);
+
 	if (!user) {
 		return null;
 	}
 
 	return (
 		<div className="flex w-full max-w-7xl flex-col gap-4">
-			<CalendarView events={[]} />
+			<CalendarView events={events} />
 			<ShareUrl user={user} />
 		</div>
 	);
