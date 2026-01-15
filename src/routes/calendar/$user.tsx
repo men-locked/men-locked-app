@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/lib/supabase/client";
+import { fetchEvents } from "@/lib/supabase/event";
+import { fetchProfile } from "@/lib/supabase/profile";
 import CalendarView from "./calendar-view";
 
 export const Route = createFileRoute("/calendar/$user")({
@@ -21,36 +23,20 @@ function RouteComponent() {
 			return;
 		}
 
-		const fetchEvents = async () => {
-			const { data, error } = await supabase
-				.from("events")
-				.select("*")
-				.eq("user_id", user);
-
-			if (error) {
-				toast.error(`無法取得記錄資料：${error.message}`);
-				return;
-			}
-
-			setEvents(data || []);
-		};
-		const fetchProfile = async () => {
-			const { data, error } = await supabase
-				.from("profiles")
-				.select("*")
-				.eq("id", user)
-				.single();
-
-			if (error) {
-				toast.error(`無法取得用戶資料：${error.message}`);
-				return;
-			}
-
-			setProfile(data);
-		};
-
-		fetchEvents();
-		fetchProfile();
+		fetchEvents(user)
+			.catch((error) => {
+				toast.error(`無法取得資料：${error.message}`);
+			})
+			.then((data) => {
+				setEvents(data || []);
+			});
+		fetchProfile(user)
+			.catch((error) => {
+				toast.error(`無法取得資料：${error.message}`);
+			})
+			.then((data) => {
+				setProfile(data);
+			});
 	}, [user]);
 
 	return (

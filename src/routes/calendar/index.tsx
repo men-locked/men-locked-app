@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/components/user-context";
 import { supabase } from "@/lib/supabase/client";
+import { fetchEvents } from "@/lib/supabase/event";
 import CalendarView from "./calendar-view";
 
 export const Route = createFileRoute("/calendar/")({
@@ -63,21 +64,13 @@ function RouteComponent() {
 			return;
 		}
 
-		const fetchEvents = async () => {
-			const { data, error } = await supabase
-				.from("events")
-				.select("*")
-				.eq("user_id", user.id);
-
-			if (error) {
+		fetchEvents(user.id)
+			.catch((error) => {
 				toast.error(`無法取得資料：${error.message}`);
-				return;
-			}
-
-			setEvents(data || []);
-		};
-
-		fetchEvents();
+			})
+			.then((data) => {
+				setEvents(data || []);
+			});
 	}, [user]);
 
 	if (!user) {

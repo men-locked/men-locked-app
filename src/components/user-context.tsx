@@ -7,6 +7,7 @@ import {
 	useState,
 } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { fetchProfile } from "@/lib/supabase/profile";
 
 interface UserContextType {
 	user: User | null;
@@ -59,19 +60,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
 			return;
 		}
 
-		const fetchProfile = async () => {
-			const { data } = await supabase
-				.from("profiles")
-				.select("username, avatar_url")
-				.eq("id", user.id)
-				.single();
-
-			if (data) {
+		fetchProfile(user.id)
+			.catch((error) => {
+				console.error(`Failed to fetch user profile: ${error}`);
+			})
+			.then((data) => {
 				setProfile(data);
-			}
-		};
-
-		fetchProfile();
+			});
 	}, [user]);
 
 	const signOut = async () => {

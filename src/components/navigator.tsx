@@ -24,6 +24,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { supabase } from "@/lib/supabase/client";
+import { updateProfile } from "@/lib/supabase/profile";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import { useUser } from "./user-context";
@@ -329,56 +330,6 @@ function UserProfilePopover({
 	};
 
 	const handleSave = () => {
-		const updateProfile = async (formData: FormData) => {
-			const username = formData.get("username") as string | null;
-			const avatarFile = formData.get("avatar") as File | null;
-
-			const updates: { username?: string; avatar_url?: string } = {};
-
-			if (username) {
-				updates.username = username;
-			}
-
-			if (avatarFile && avatarFile.size > 0) {
-				const filename = `${user.id}/${uuidv7()}`;
-				const { error: uploadError } = await supabase.storage
-					.from("avatars")
-					.upload(filename, avatarFile, {
-						upsert: true,
-					});
-
-				if (uploadError) {
-					throw new Error(`Failed to upload avatar: ${uploadError.message}`);
-				}
-
-				const {
-					data: { publicUrl },
-				} = supabase.storage.from("avatars").getPublicUrl(filename);
-				updates.avatar_url = publicUrl;
-			}
-
-			if (Object.keys(updates).length > 0) {
-				const { error: userUpdateError } = await supabase.auth.updateUser({
-					data: { username: updates.username },
-				});
-
-				if (userUpdateError) {
-					throw new Error(`Failed to update user: ${userUpdateError.message}`);
-				}
-
-				const { error: profileUpdateError } = await supabase
-					.from("profiles")
-					.update(updates)
-					.eq("id", user.id);
-
-				if (profileUpdateError) {
-					throw new Error(
-						`Failed to update profile: ${profileUpdateError.message}`,
-					);
-				}
-			}
-		};
-
 		startTransition(async () => {
 			try {
 				const formData = new FormData();
@@ -388,7 +339,7 @@ function UserProfilePopover({
 					formData.append("avatar", selectedFile);
 				}
 
-				await updateProfile(formData);
+				await updateProfile(user, formData);
 				setIsOpen(false);
 
 				// Optimistic update (optional but good for UX)
