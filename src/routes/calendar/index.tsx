@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/components/user-context";
 import { supabase } from "@/lib/supabase/client";
+import CalendarView from "./calendar-view";
 
 export const Route = createFileRoute("/calendar/")({
 	async beforeLoad() {
@@ -59,6 +60,7 @@ function RouteComponent() {
 
 	return (
 		<div className="flex w-full max-w-7xl flex-col gap-4">
+			<CalendarView events={[]} />
 			<ShareUrl user={user} />
 		</div>
 	);

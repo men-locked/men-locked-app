@@ -8,7 +8,6 @@ import {
 	ChevronRightIcon,
 	ChevronsUpDown,
 } from "lucide-react";
-import Image from "next/image";
 import {
 	createContext,
 	memo,
@@ -298,10 +297,9 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
 					}}
 				>
 					{coverImage && (
-						<Image
+						<img
 							src={coverImage}
-							alt="Event image"
-							fill
+							alt="EventImage"
 							className="object-cover opacity-80"
 						/>
 					)}
@@ -331,6 +329,7 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
 					<div
 						className={cn(
 							"relative aspect-square overflow-hidden border-2",
+							index <= 6 && "border-t-0",
 							index % 7 === 6 && "border-r-0",
 							index % 7 === 0 && "border-l-0",
 							index >= 28 && "border-b-0",
@@ -363,10 +362,9 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
 										>
 											<div className="relative aspect-square w-full h-full rounded-lg overflow-hidden">
 												{feature.imageUrl && (
-													<Image
+													<img
 														src={feature.imageUrl}
 														alt={feature.name}
-														fill
 														className="object-cover"
 													/>
 												)}
