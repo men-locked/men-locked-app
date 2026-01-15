@@ -4,7 +4,6 @@ import { Link } from "@tanstack/react-router";
 import { Calendar, Loader2, LogOut, Upload, UserIcon } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { uuidv7 } from "uuidv7";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

@@ -4,7 +4,6 @@ import type { Tables } from "database.types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { supabase } from "@/lib/supabase/client";
 import { fetchEvents } from "@/lib/supabase/event";
 import { fetchProfile } from "@/lib/supabase/profile";
 import CalendarView from "./calendar-view";
