@@ -1,5 +1,4 @@
 import { useState, useTransition } from "react";
-import { uuidv7 } from "uuidv7";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -19,7 +18,8 @@ import {
 	ImageCropReset,
 } from "@/components/ui/shadcn-io/image-crop";
 import { statuses } from "@/lib/constants";
-import { supabase } from "@/lib/supabase/client";
+import { createEvent } from "@/lib/supabase/event";
+import { useUser } from "./user-context";
 
 function dataURLtoBlob(dataurl: string) {
 	const arr = dataurl.split(",");
@@ -34,49 +34,21 @@ function dataURLtoBlob(dataurl: string) {
 }
 
 export function CheckoutDialog() {
+	const { user } = useUser();
 	const [open, setOpen] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<string>("foo");
 	const [file, setFile] = useState<File | null>(null);
 	const [croppedDataUrl, setCroppedDataUrl] = useState<string | null>(null);
 	const [isPending, startTransition] = useTransition();
 
+	if (!user) {
+		return null;
+	}
+
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
 			setFile(e.target.files[0]);
 			setCroppedDataUrl(null); // Reset crop when new file selected
-		}
-	};
-
-	const createEvent = async (formData: FormData) => {
-		const status = formData.get("status") as string;
-		const image = formData.get("image") as File;
-		const user = await supabase.auth.getUser();
-
-		if (!status || !image || !user.data.user) {
-			throw new Error("Missing required fields");
-		}
-
-		const filename = `${user.data.user.id}/${uuidv7()}`;
-		const { error: uploadError } = await supabase.storage
-			.from("events")
-			.upload(filename, image);
-
-		if (uploadError) {
-			throw new Error(`Failed to upload image: ${uploadError.message}`);
-		}
-
-		const {
-			data: { publicUrl },
-		} = supabase.storage.from("events").getPublicUrl(filename);
-
-		const { error: insertError } = await supabase.from("events").insert({
-			user_id: user.data.user.id,
-			status,
-			image_url: publicUrl,
-		});
-
-		if (insertError) {
-			throw new Error(`Failed to create event: ${insertError.message}`);
 		}
 	};
 
@@ -90,7 +62,7 @@ export function CheckoutDialog() {
 				formData.append("status", selectedStatus);
 				formData.append("image", blob, file.name);
 
-				await createEvent(formData);
+				await createEvent(user, formData);
 				setOpen(false);
 				// Reset state
 				setFile(null);

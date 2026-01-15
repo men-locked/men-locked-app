@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarIndexRouteImport } from './routes/calendar/index'
+import { Route as CalendarUserRouteImport } from './routes/calendar/$user'
 import { Route as AuthUpdatePasswordRouteImport } from './routes/auth/update-password'
 
 const AboutRoute = AboutRouteImport.update({
@@ -29,6 +30,11 @@ const CalendarIndexRoute = CalendarIndexRouteImport.update({
   path: '/calendar/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarUserRoute = CalendarUserRouteImport.update({
+  id: '/calendar/$user',
+  path: '/calendar/$user',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthUpdatePasswordRoute = AuthUpdatePasswordRouteImport.update({
   id: '/auth/update-password',
   path: '/auth/update-password',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/calendar/$user': typeof CalendarUserRoute
   '/calendar': typeof CalendarIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/calendar/$user': typeof CalendarUserRoute
   '/calendar': typeof CalendarIndexRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
+  '/calendar/$user': typeof CalendarUserRoute
   '/calendar/': typeof CalendarIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/auth/update-password' | '/calendar'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth/update-password'
+    | '/calendar/$user'
+    | '/calendar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/auth/update-password' | '/calendar'
-  id: '__root__' | '/' | '/about' | '/auth/update-password' | '/calendar/'
+  to: '/' | '/about' | '/auth/update-password' | '/calendar/$user' | '/calendar'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/auth/update-password'
+    | '/calendar/$user'
+    | '/calendar/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute
+  CalendarUserRoute: typeof CalendarUserRoute
   CalendarIndexRoute: typeof CalendarIndexRoute
 }
 
@@ -92,6 +113,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendar/$user': {
+      id: '/calendar/$user'
+      path: '/calendar/$user'
+      fullPath: '/calendar/$user'
+      preLoaderRoute: typeof CalendarUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/update-password': {
       id: '/auth/update-password'
       path: '/auth/update-password'
@@ -106,6 +134,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AuthUpdatePasswordRoute: AuthUpdatePasswordRoute,
+  CalendarUserRoute: CalendarUserRoute,
   CalendarIndexRoute: CalendarIndexRoute,
 }
 export const routeTree = rootRouteImport

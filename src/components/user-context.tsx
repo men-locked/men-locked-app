@@ -7,18 +7,27 @@ import {
 	useState,
 } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { fetchProfile } from "@/lib/supabase/profile";
 
 interface UserContextType {
 	user: User | null;
+	profile: Profile | null;
+	setProfile: (profile: Profile) => void;
 	session: Session | null;
 	isLoading: boolean;
 	signOut: () => Promise<void>;
+}
+
+interface Profile {
+	avatar_url: string;
+	username: string;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
+	const [profile, setProfile] = useState<Profile | null>(null);
 	const [session, setSession] = useState<Session | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -45,12 +54,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
 		return () => subscription.unsubscribe();
 	}, []);
 
+	useEffect(() => {
+		if (!user) {
+			setProfile(null);
+			return;
+		}
+
+		fetchProfile(user.id)
+			.catch((error) => {
+				console.error(`Failed to fetch user profile: ${error}`);
+			})
+			.then((data) => {
+				setProfile(data);
+			});
+	}, [user]);
+
 	const signOut = async () => {
 		await supabase.auth.signOut();
 	};
 
 	const value = {
 		user,
+		profile,
+		setProfile,
 		session,
 		isLoading,
 		signOut,
