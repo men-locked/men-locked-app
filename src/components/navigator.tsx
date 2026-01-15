@@ -1,7 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { LogOut, UserIcon } from "lucide-react";
+import { Calendar, LogOut, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -361,10 +361,16 @@ export default function Navigator({ className }: { className?: string }) {
 			)}
 		>
 			<div className="container mx-auto flex h-16 items-center justify-between px-4">
-				<div className="mr-4 flex items-center space-x-2">
+				<div className="mr-4 flex items-center space-x-2 gap-8">
 					<Link to="/" className="text-2xl font-bold text-primary">
 						Men Locked
 					</Link>
+					{user && (
+						<Link to="/calendar" className="flex items-center">
+							<Calendar className="mr-2 h-4 w-4 inline-block" />
+							日曆
+						</Link>
+					)}
 				</div>
 				<div className="flex flex-1 items-center justify-center space-x-2 md:justify-end">
 					<div className="w-full max-w-lg md:w-auto md:flex-none"></div>
