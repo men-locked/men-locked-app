@@ -287,31 +287,19 @@ interface Profile {
 	avatar_url: string;
 }
 
+interface UserProfilePopoverProps {
+	user: User;
+	profile: Profile | null;
+	setProfile: (profile: Profile) => void;
+	signOut: () => Promise<void>;
+}
+
 function UserProfilePopover({
 	user,
+	profile,
+	setProfile,
 	signOut,
-}: {
-	user: User;
-	signOut: () => Promise<void>;
-}) {
-	const [profile, setProfile] = useState<Profile | undefined>();
-
-	useEffect(() => {
-		const fetchProfile = async () => {
-			const { data } = await supabase
-				.from("profiles")
-				.select("username, avatar_url")
-				.eq("id", user.id)
-				.single();
-
-			if (data) {
-				setProfile(data);
-			}
-		};
-
-		fetchProfile();
-	}, [user.id]);
-
+}: UserProfilePopoverProps) {
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
@@ -351,7 +339,7 @@ function UserProfilePopover({
 }
 
 export default function Navigator({ className }: { className?: string }) {
-	const { user, isLoading, signOut } = useUser();
+	const { user, profile, setProfile, isLoading, signOut } = useUser();
 
 	return (
 		<header
@@ -378,7 +366,12 @@ export default function Navigator({ className }: { className?: string }) {
 						{isLoading ? (
 							<Skeleton className="h-8 w-20" />
 						) : user ? (
-							<UserProfilePopover user={user} signOut={signOut} />
+							<UserProfilePopover
+								user={user}
+								profile={profile}
+								setProfile={setProfile}
+								signOut={signOut}
+							/>
 						) : (
 							<LoginButton />
 						)}

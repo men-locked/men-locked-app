@@ -10,15 +10,23 @@ import { supabase } from "@/lib/supabase/client";
 
 interface UserContextType {
 	user: User | null;
+	profile: Profile | null;
+	setProfile: (profile: Profile) => void;
 	session: Session | null;
 	isLoading: boolean;
 	signOut: () => Promise<void>;
+}
+
+interface Profile {
+	avatar_url: string;
+	username: string;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
+	const [profile, setProfile] = useState<Profile | null>(null);
 	const [session, setSession] = useState<Session | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -45,12 +53,35 @@ export function UserProvider({ children }: { children: ReactNode }) {
 		return () => subscription.unsubscribe();
 	}, []);
 
+	useEffect(() => {
+		if (!user) {
+			setProfile(null);
+			return;
+		}
+
+		const fetchProfile = async () => {
+			const { data } = await supabase
+				.from("profiles")
+				.select("username, avatar_url")
+				.eq("id", user.id)
+				.single();
+
+			if (data) {
+				setProfile(data);
+			}
+		};
+
+		fetchProfile();
+	}, [user]);
+
 	const signOut = async () => {
 		await supabase.auth.signOut();
 	};
 
 	const value = {
 		user,
+		profile,
+		setProfile,
 		session,
 		isLoading,
 		signOut,
