@@ -1,5 +1,3 @@
-"use client";
-
 import type { Tables } from "database.types";
 import {
 	CalendarBody,
