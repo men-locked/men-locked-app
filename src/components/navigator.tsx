@@ -1,9 +1,10 @@
 import type { User } from "@supabase/supabase-js";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { Calendar, LogOut, UserIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Calendar, Loader2, LogOut, Upload, UserIcon } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
+import { uuidv7 } from "uuidv7";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -300,38 +301,188 @@ function UserProfilePopover({
 	setProfile,
 	signOut,
 }: UserProfilePopoverProps) {
+	const [isOpen, setIsOpen] = useState(false);
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	const [newUsername, setNewUsername] = useState("");
+	const [isPending, startTransition] = useTransition();
+
+	useEffect(() => {
+		if (profile) {
+			setNewUsername(profile.username);
+		}
+	}, [profile]);
+
+	useEffect(() => {
+		if (isOpen) {
+			setSelectedFile(null);
+			setPreviewUrl(null);
+		}
+	}, [isOpen]);
+
+	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files && e.target.files.length > 0) {
+			const file = e.target.files[0];
+			setSelectedFile(file);
+			setPreviewUrl(URL.createObjectURL(file));
+		}
+	};
+
+	const handleSave = () => {
+		const updateProfile = async (formData: FormData) => {
+			const username = formData.get("username") as string | null;
+			const avatarFile = formData.get("avatar") as File | null;
+
+			const updates: { username?: string; avatar_url?: string } = {};
+
+			if (username) {
+				updates.username = username;
+			}
+
+			if (avatarFile && avatarFile.size > 0) {
+				const filename = `${user.id}/${uuidv7()}`;
+				const { error: uploadError } = await supabase.storage
+					.from("avatars")
+					.upload(filename, avatarFile, {
+						upsert: true,
+					});
+
+				if (uploadError) {
+					throw new Error(`Failed to upload avatar: ${uploadError.message}`);
+				}
+
+				const {
+					data: { publicUrl },
+				} = supabase.storage.from("avatars").getPublicUrl(filename);
+				updates.avatar_url = publicUrl;
+			}
+
+			if (Object.keys(updates).length > 0) {
+				const { error: userUpdateError } = await supabase.auth.updateUser({
+					data: { username: updates.username },
+				});
+
+				if (userUpdateError) {
+					throw new Error(`Failed to update user: ${userUpdateError.message}`);
+				}
+
+				const { error: profileUpdateError } = await supabase
+					.from("profiles")
+					.update(updates)
+					.eq("id", user.id);
+
+				if (profileUpdateError) {
+					throw new Error(
+						`Failed to update profile: ${profileUpdateError.message}`,
+					);
+				}
+			}
+		};
+
+		startTransition(async () => {
+			try {
+				const formData = new FormData();
+				formData.append("username", newUsername);
+
+				if (selectedFile) {
+					formData.append("avatar", selectedFile);
+				}
+
+				await updateProfile(formData);
+				setIsOpen(false);
+
+				// Optimistic update (optional but good for UX)
+				if (profile) {
+					setProfile({
+						...profile,
+						username: newUsername,
+						avatar_url: previewUrl || profile.avatar_url,
+					});
+				}
+
+				toast.success("已更新用戶資料");
+			} catch (error) {
+				toast.error(`更新用戶資料失敗：${error}`);
+			}
+		});
+	};
+
 	return (
-		<Popover>
+		<Popover open={isOpen} onOpenChange={setIsOpen}>
 			<PopoverTrigger asChild>
-				<Avatar>
-					<AvatarImage src={profile?.avatar_url} />
-					<AvatarFallback>
-						{(profile?.username || user.email)?.substring(0, 2).toUpperCase()}
-					</AvatarFallback>
-				</Avatar>
+				<Button variant="ghost" className="relative h-8 w-8 rounded-full">
+					<Avatar>
+						<AvatarImage src={profile?.avatar_url ?? ""} alt="Avatar" />
+						<AvatarFallback>
+							{(profile?.username || user.email)?.substring(0, 2).toUpperCase()}
+						</AvatarFallback>
+					</Avatar>
+				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-80 grid gap-4" align="end">
-				<div className="flex flex-col items-center gap-4">
-					<div className="w-24 h-24 rounded-full overflow-hidden border bg-muted flex items-center justify-center relative">
-						<Avatar>
-							<AvatarImage src={profile?.avatar_url} />
-							<AvatarFallback>
-								<UserIcon className="w-12 h-12 text-muted-foreground" />
-							</AvatarFallback>
-						</Avatar>
+			<PopoverContent className="w-80" align="end">
+				<div className="grid gap-4">
+					<div className="space-y-2">
+						<h4 className="font-medium leading-none">用戶資料</h4>
+						<p className="text-sm text-muted-foreground">更新您的個人資料</p>
 					</div>
 
-					<h4 className="leading-none font-medium">{profile?.username}</h4>
-				</div>
-				<div className="grid">
-					<Button
-						variant="outline"
-						onClick={() => signOut()}
-						className="text-destructive hover:text-destructive"
-					>
-						<LogOut className="mr-2 h-4 w-4" />
-						登出
-					</Button>
+					{/* Avatar Section */}
+					<div className="flex flex-col items-center gap-4">
+						<div className="relative group">
+							<div className="w-24 h-24 rounded-full overflow-hidden border bg-muted flex items-center justify-center relative">
+								{previewUrl || profile?.avatar_url ? (
+									<img
+										src={previewUrl || profile?.avatar_url || ""}
+										height={96}
+										width={96}
+										className="w-full h-full object-cover"
+										alt="Avatar"
+									/>
+								) : (
+									<UserIcon className="w-12 h-12 text-muted-foreground" />
+								)}
+								<label
+									htmlFor="avatar-upload"
+									className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+								>
+									<Upload className="w-6 h-6 text-white" />
+								</label>
+							</div>
+							<input
+								id="avatar-upload"
+								type="file"
+								accept="image/*"
+								className="hidden"
+								onChange={handleFileSelect}
+							/>
+						</div>
+					</div>
+
+					{/* Username Section */}
+					<div className="grid gap-2">
+						<Label htmlFor="username">用戶名稱</Label>
+						<Input
+							id="username"
+							value={newUsername}
+							onChange={(e) => setNewUsername(e.target.value)}
+							placeholder="輸入用戶名稱"
+						/>
+					</div>
+
+					<div className="flex flex-col gap-2">
+						<Button onClick={handleSave} disabled={isPending}>
+							{isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+							儲存修改
+						</Button>
+						<Button
+							variant="outline"
+							onClick={signOut}
+							className="text-destructive hover:text-destructive"
+						>
+							<LogOut className="mr-2 h-4 w-4" />
+							登出
+						</Button>
+					</div>
 				</div>
 			</PopoverContent>
 		</Popover>
