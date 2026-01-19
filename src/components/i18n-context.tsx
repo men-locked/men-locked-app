@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Progress } from "@/components/ui/progress";
+import { predefinedTranslations } from "./i18n-translations";
 
 declare global {
 	interface Window {
@@ -104,6 +105,12 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
 	const translate = (text: string, returnString = false): React.ReactNode => {
 		if (locale === "zh-TW") return text;
+
+		// Check for pre-defined translation
+		if (predefinedTranslations[text]?.[locale]) {
+			return predefinedTranslations[text][locale];
+		}
+
 		if (!translatorRef.current) return text;
 
 		const cached = translations.get(text);
