@@ -114,7 +114,17 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 		if (!translatorRef.current) return text;
 
 		const cached = translations.get(text);
-		if (cached) return cached;
+		if (cached) {
+			if (returnString) return `${cached} (${text})`;
+			return (
+				<span title={text}>
+					<span>{cached}</span>
+					<span className="text-[0.8em] opacity-60 italic font-normal">
+						({text})
+					</span>
+				</span>
+			);
+		}
 
 		if (pendingTranslations.current.has(text)) {
 			return returnString ? (
