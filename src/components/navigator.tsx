@@ -304,9 +304,7 @@ function LoginButton() {
 }
 
 function LanguageSelector() {
-	const { locale, setLocale, isSupported } = useI18n();
-
-	if (!isSupported) return null;
+	const { locale, setLocale } = useI18n();
 
 	return (
 		<DropdownMenu>
