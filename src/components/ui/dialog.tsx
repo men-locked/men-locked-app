@@ -62,6 +62,7 @@ function DialogContent({
 					className,
 				)}
 				{...props}
+				aria-description="dialog"
 			>
 				{children}
 				{showCloseButton && (
