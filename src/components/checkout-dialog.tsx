@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/shadcn-io/image-crop";
 import { statuses } from "@/lib/constants";
 import { createEvent } from "@/lib/supabase/event";
+import { useI18n } from "./i18n-context";
 import { useUser } from "./user-context";
 
 function dataURLtoBlob(dataurl: string) {
@@ -34,6 +35,7 @@ function dataURLtoBlob(dataurl: string) {
 }
 
 export function CheckoutDialog() {
+	const { t } = useI18n();
 	const { user } = useUser();
 	const [open, setOpen] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<string>("foo");
@@ -77,17 +79,17 @@ export function CheckoutDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button>打卡</Button>
+				<Button>{t("打卡")}</Button>
 			</DialogTrigger>
 			<DialogContent className="max-w-xl">
 				<DialogHeader>
-					<DialogTitle>打卡</DialogTitle>
-					<DialogDescription>建立打卡記錄</DialogDescription>
+					<DialogTitle>{t("打卡")}</DialogTitle>
+					<DialogDescription>{t("建立打卡記錄")}</DialogDescription>
 				</DialogHeader>
 
 				<div className="grid gap-6 py-4">
 					<div className="grid gap-2">
-						<Label>今日狀態</Label>
+						<Label>{t("今日狀態")}</Label>
 						<RadioGroup
 							value={selectedStatus}
 							onValueChange={setSelectedStatus}
@@ -103,7 +105,7 @@ export function CheckoutDialog() {
 										htmlFor={`status-${status.id}`}
 										style={{ color: status.color }}
 									>
-										{status.name}
+										{t(status.name)}
 									</Label>
 								</div>
 							))}
@@ -111,7 +113,7 @@ export function CheckoutDialog() {
 					</div>
 
 					<div className="grid gap-2">
-						<Label htmlFor="image">照片</Label>
+						<Label htmlFor="image">{t("照片")}</Label>
 						<Input
 							id="image"
 							type="file"
@@ -127,8 +129,8 @@ export function CheckoutDialog() {
 								<div className="flex flex-col gap-4">
 									<ImageCropContent />
 									<div className="flex justify-center gap-2">
-										<ImageCropApply>裁切</ImageCropApply>
-										<ImageCropReset>重設</ImageCropReset>
+										<ImageCropApply>{t("裁切")}</ImageCropApply>
+										<ImageCropReset>{t("重設")}</ImageCropReset>
 									</div>
 								</div>
 							</ImageCrop>
@@ -137,7 +139,7 @@ export function CheckoutDialog() {
 
 					{croppedDataUrl && (
 						<div className="grid gap-2">
-							<Label>預覽</Label>
+							<Label>{t("預覽")}</Label>
 							<div className="relative aspect-square w-32 overflow-hidden rounded-md border">
 								<img
 									src={croppedDataUrl}
@@ -150,7 +152,7 @@ export function CheckoutDialog() {
 								size="sm"
 								onClick={() => setCroppedDataUrl(null)}
 							>
-								重新裁切
+								{t("重新裁切")}
 							</Button>
 						</div>
 					)}
@@ -159,7 +161,7 @@ export function CheckoutDialog() {
 						onClick={handleCreate}
 						disabled={!file || !croppedDataUrl || isPending}
 					>
-						{isPending ? "正在建立…" : "建立打卡"}
+						{t(isPending ? "正在建立…" : "建立打卡")}
 					</Button>
 				</div>
 			</DialogContent>
