@@ -43,6 +43,8 @@ import { Skeleton } from "./ui/skeleton";
 import { useUser } from "./user-context";
 
 function ForgotPasswordDialog() {
+	const { t } = useI18n();
+
 	const [open, setOpen] = useState(false);
 	const form = useForm({
 		defaultValues: {
@@ -54,10 +56,10 @@ function ForgotPasswordDialog() {
 				{ redirectTo: `${window.location.origin}/auth/update-password` },
 			);
 			if (error) {
-				toast.error(`寄發密碼重設信件失敗：${error.message}`);
+				toast.error(t(`寄發密碼重設信件失敗：${error.message}`));
 				return;
 			}
-			toast.success("密碼重設信件已寄出，請查收信箱");
+			toast.success(t("密碼重設信件已寄出，請查收信箱"));
 			setOpen(false);
 		},
 	});
@@ -65,13 +67,15 @@ function ForgotPasswordDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-				忘記密碼？
+				{t("忘記密碼？")}
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="flex flex-col gap-4">
-					<DialogTitle>寄發密碼重設認證信</DialogTitle>
+					<DialogTitle>{t("寄發密碼重設認證信")}</DialogTitle>
 					<DialogDescription>
-						為了保護您的帳號安全，我們將會寄發一封密碼重設認證到您的電子信箱，請依照信中的指示完成密碼重設流程。
+						{t(
+							"為了保護您的帳號安全，我們將會寄發一封密碼重設認證到您的電子信箱，請依照信中的指示完成密碼重設流程。",
+						)}
 					</DialogDescription>
 					<form
 						onSubmit={(e) => {
@@ -101,7 +105,7 @@ function ForgotPasswordDialog() {
 							selector={(state) => [state.canSubmit, state.isSubmitting]}
 							children={([canSubmit, isSubmitting]) => (
 								<Button type="submit" disabled={!canSubmit}>
-									{isSubmitting ? "寄送中..." : "送出"}
+									{t(isSubmitting ? "寄送中..." : "送出")}
 								</Button>
 							)}
 						/>
@@ -113,6 +117,7 @@ function ForgotPasswordDialog() {
 }
 
 function RegisterDialog() {
+	const { t } = useI18n();
 	const [open, setOpen] = useState(false);
 	const form = useForm({
 		defaultValues: {
@@ -131,10 +136,10 @@ function RegisterDialog() {
 				},
 			});
 			if (error) {
-				toast.error(`註冊失敗：${error.message}`);
+				toast.error(t(`註冊失敗：${error.message}`));
 				return;
 			}
-			toast.success("註冊成功，請到電子郵件信相依指示啟用帳戶");
+			toast.success(t("註冊成功，請到電子郵件信相依指示啟用帳戶"));
 			setOpen(false);
 		},
 	});
@@ -142,13 +147,13 @@ function RegisterDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline">註冊</Button>
+				<Button variant="outline">{t("註冊")}</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="flex flex-col gap-4">
-					<DialogTitle>註冊新帳號</DialogTitle>
+					<DialogTitle>{t("註冊新帳號")}</DialogTitle>
 					<DialogDescription>
-						請填寫您的電子郵件與密碼，完成註冊流程。
+						{t("請填寫您的電子郵件與密碼，完成註冊流程。")}
 					</DialogDescription>
 					<form
 						onSubmit={(e) => {
@@ -178,7 +183,7 @@ function RegisterDialog() {
 							name="password"
 							children={(field) => (
 								<>
-									<Label htmlFor={field.name}>Password</Label>
+									<Label htmlFor={field.name}>{t("密碼")}</Label>
 									<Input
 										id={field.name}
 										type="password"
@@ -194,7 +199,7 @@ function RegisterDialog() {
 							selector={(state) => [state.canSubmit, state.isSubmitting]}
 							children={([canSubmit, isSubmitting]) => (
 								<Button type="submit" disabled={!canSubmit}>
-									{isSubmitting ? "註冊中..." : "註冊"}
+									{t(isSubmitting ? "註冊中..." : "註冊")}
 								</Button>
 							)}
 						/>
@@ -219,7 +224,7 @@ function LoginButton() {
 			});
 
 			if (error) {
-				toast.error(`登入失敗：${error.message}`);
+				toast.error(t(`登入失敗：${error.message}`));
 			}
 		},
 	});
@@ -265,7 +270,7 @@ function LoginButton() {
 							name="password"
 							children={(field) => (
 								<>
-									<Label htmlFor={field.name}>Password</Label>
+									<Label htmlFor={field.name}>{t("密碼")}</Label>
 									<Input
 										id={field.name}
 										type="password"
@@ -285,7 +290,7 @@ function LoginButton() {
 							children={([canSubmit, isSubmitting]) => (
 								<>
 									<Button type="submit" disabled={!canSubmit}>
-										{isSubmitting ? "..." : t("登入")}
+										{t(isSubmitting ? "登入中..." : "登入")}
 									</Button>
 								</>
 							)}
@@ -397,9 +402,9 @@ function UserProfilePopover({
 					});
 				}
 
-				toast.success("已更新用戶資料");
+				toast.success(t("已更新用戶資料"));
 			} catch (error) {
-				toast.error(`更新用戶資料失敗：${error}`);
+				toast.error(t(`更新用戶資料失敗：${error}`));
 			}
 		});
 	};
