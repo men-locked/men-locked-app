@@ -1,7 +1,14 @@
 import type { User } from "@supabase/supabase-js";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import { Calendar, Loader2, LogOut, Upload, UserIcon } from "lucide-react";
+import {
+	Calendar,
+	Languages,
+	Loader2,
+	LogOut,
+	Upload,
+	UserIcon,
+} from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -15,6 +22,12 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,6 +38,7 @@ import {
 import { supabase } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/supabase/profile";
 import { cn } from "@/lib/utils";
+import { useI18n } from "./i18n-context";
 import { Skeleton } from "./ui/skeleton";
 import { useUser } from "./user-context";
 
@@ -192,6 +206,7 @@ function RegisterDialog() {
 }
 
 function LoginButton() {
+	const { t } = useI18n();
 	const form = useForm({
 		defaultValues: {
 			email: "",
@@ -212,7 +227,7 @@ function LoginButton() {
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
-				<Button variant="ghost">登入</Button>
+				<Button variant="ghost">{t("nav.login")}</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-80">
 				<form
@@ -224,9 +239,9 @@ function LoginButton() {
 					className="grid gap-4"
 				>
 					<div className="space-y-2">
-						<h4 className="leading-none font-medium">登入</h4>
+						<h4 className="leading-none font-medium">{t("nav.login")}</h4>
 						<p className="text-sm text-muted-foreground">
-							使用電子郵件與密碼登入
+							{t("nav.signInWithEmail")}
 						</p>
 					</div>
 					<div className="grid gap-2">
@@ -270,7 +285,7 @@ function LoginButton() {
 							children={([canSubmit, isSubmitting]) => (
 								<>
 									<Button type="submit" disabled={!canSubmit}>
-										{isSubmitting ? "登入中..." : "登入"}
+										{isSubmitting ? "..." : t("nav.login")}
 									</Button>
 								</>
 							)}
@@ -280,6 +295,35 @@ function LoginButton() {
 				</form>
 			</PopoverContent>
 		</Popover>
+	);
+}
+
+function LanguageSelector() {
+	const { locale, setLocale, t } = useI18n();
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="ghost" size="icon">
+					<Languages className="h-[1.2rem] w-[1.2rem]" />
+					<span className="sr-only">Toggle language</span>
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end">
+				<DropdownMenuItem
+					onClick={() => setLocale("zh-TW")}
+					className={cn(locale === "zh-TW" && "bg-accent")}
+				>
+					{t("lang.zh-TW")}
+				</DropdownMenuItem>
+				<DropdownMenuItem
+					onClick={() => setLocale("en")}
+					className={cn(locale === "en" && "bg-accent")}
+				>
+					{t("lang.en")}
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }
 
@@ -301,6 +345,7 @@ function UserProfilePopover({
 	setProfile,
 	signOut,
 }: UserProfilePopoverProps) {
+	const { t } = useI18n();
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -372,8 +417,10 @@ function UserProfilePopover({
 			<PopoverContent className="w-80" align="end">
 				<div className="grid gap-4">
 					<div className="space-y-2">
-						<h4 className="font-medium leading-none">用戶資料</h4>
-						<p className="text-sm text-muted-foreground">更新您的個人資料</p>
+						<h4 className="font-medium leading-none">{t("nav.profile")}</h4>
+						<p className="text-sm text-muted-foreground">
+							{t("nav.updateProfile")}
+						</p>
 					</div>
 
 					{/* Avatar Section */}
@@ -410,19 +457,19 @@ function UserProfilePopover({
 
 					{/* Username Section */}
 					<div className="grid gap-2">
-						<Label htmlFor="username">用戶名稱</Label>
+						<Label htmlFor="username">{t("nav.username")}</Label>
 						<Input
 							id="username"
 							value={newUsername}
 							onChange={(e) => setNewUsername(e.target.value)}
-							placeholder="輸入用戶名稱"
+							placeholder={t("nav.username")}
 						/>
 					</div>
 
 					<div className="flex flex-col gap-2">
 						<Button onClick={handleSave} disabled={isPending}>
 							{isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-							儲存修改
+							{t("nav.save")}
 						</Button>
 						<Button
 							variant="outline"
@@ -430,7 +477,7 @@ function UserProfilePopover({
 							className="text-destructive hover:text-destructive"
 						>
 							<LogOut className="mr-2 h-4 w-4" />
-							登出
+							{t("nav.logout")}
 						</Button>
 					</div>
 				</div>
@@ -441,6 +488,7 @@ function UserProfilePopover({
 
 export default function Navigator({ className }: { className?: string }) {
 	const { user, profile, setProfile, isLoading, signOut } = useUser();
+	const { t } = useI18n();
 
 	return (
 		<header
@@ -457,7 +505,7 @@ export default function Navigator({ className }: { className?: string }) {
 					{user && (
 						<Link to="/calendar" className="flex items-center">
 							<Calendar className="mr-2 h-4 w-4 inline-block" />
-							日曆
+							{t("nav.calendar")}
 						</Link>
 					)}
 				</div>
@@ -476,6 +524,7 @@ export default function Navigator({ className }: { className?: string }) {
 						) : (
 							<LoginButton />
 						)}
+						<LanguageSelector />
 						<ThemeToggle />
 					</nav>
 				</div>
