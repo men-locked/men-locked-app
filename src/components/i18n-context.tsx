@@ -116,7 +116,6 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 		}
 
 		pendingTranslations.current.add(text);
-		setTranslations((prev) => new Map(prev)); // Force re-render to show spinner
 
 		translatorRef.current
 			.translate(text)
