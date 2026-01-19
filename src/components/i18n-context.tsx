@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { Progress } from "@/components/ui/progress";
 
 declare global {
 	interface Window {
@@ -40,6 +41,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 	const [translations, setTranslations] = useState<Map<string, string>>(
 		new Map(),
 	);
+	const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
 	const pendingTranslations = useRef<Set<string>>(new Set());
 
 	useEffect(() => {
@@ -77,11 +79,10 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 							loaded: number;
 							total: number;
 						};
-						console.log(
-							`Downloaded ${(
-								(progressEvent.loaded / progressEvent.total) * 100
-							).toFixed(2)}%`,
-						);
+						const percentage =
+							(progressEvent.loaded / progressEvent.total) * 100;
+						setDownloadProgress(percentage);
+						console.log(`Downloaded ${percentage.toFixed(2)}%`);
 					});
 				};
 			}
@@ -94,6 +95,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 				console.error("Failed to create translator:", error);
 			} finally {
 				setIsLoading(false);
+				setDownloadProgress(null);
 			}
 		};
 
@@ -148,6 +150,17 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 			value={{ locale, setLocale, t, tString, isSupported, isLoading }}
 		>
 			{children}
+			{downloadProgress !== null && downloadProgress < 100 && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+					<div className="w-full max-w-sm space-y-4 p-4 text-center">
+						<div className="text-lg font-semibold">下載翻譯模型中...</div>
+						<Progress value={downloadProgress} className="w-full" />
+						<div className="text-sm text-muted-foreground">
+							{downloadProgress.toFixed(0)}%
+						</div>
+					</div>
+				</div>
+			)}
 		</I18nContext.Provider>
 	);
 }
