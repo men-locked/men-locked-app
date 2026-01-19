@@ -227,7 +227,7 @@ function LoginButton() {
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
-				<Button variant="ghost">{t("nav.login")}</Button>
+				<Button variant="ghost">{t("登入")}</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-80">
 				<form
@@ -239,9 +239,9 @@ function LoginButton() {
 					className="grid gap-4"
 				>
 					<div className="space-y-2">
-						<h4 className="leading-none font-medium">{t("nav.login")}</h4>
+						<h4 className="leading-none font-medium">{t("登入")}</h4>
 						<p className="text-sm text-muted-foreground">
-							{t("nav.signInWithEmail")}
+							{t("使用電子郵件與密碼登入")}
 						</p>
 					</div>
 					<div className="grid gap-2">
@@ -285,7 +285,7 @@ function LoginButton() {
 							children={([canSubmit, isSubmitting]) => (
 								<>
 									<Button type="submit" disabled={!canSubmit}>
-										{isSubmitting ? "..." : t("nav.login")}
+										{isSubmitting ? "..." : t("登入")}
 									</Button>
 								</>
 							)}
@@ -299,7 +299,9 @@ function LoginButton() {
 }
 
 function LanguageSelector() {
-	const { locale, setLocale, t } = useI18n();
+	const { locale, setLocale, isSupported } = useI18n();
+
+	if (!isSupported) return null;
 
 	return (
 		<DropdownMenu>
@@ -345,7 +347,7 @@ function UserProfilePopover({
 	setProfile,
 	signOut,
 }: UserProfilePopoverProps) {
-	const { t } = useI18n();
+	const { t, tString } = useI18n();
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -417,9 +419,9 @@ function UserProfilePopover({
 			<PopoverContent className="w-80" align="end">
 				<div className="grid gap-4">
 					<div className="space-y-2">
-						<h4 className="font-medium leading-none">{t("nav.profile")}</h4>
+						<h4 className="font-medium leading-none">{t("用戶資料")}</h4>
 						<p className="text-sm text-muted-foreground">
-							{t("nav.updateProfile")}
+							{t("更新您的個人資料")}
 						</p>
 					</div>
 
@@ -457,19 +459,19 @@ function UserProfilePopover({
 
 					{/* Username Section */}
 					<div className="grid gap-2">
-						<Label htmlFor="username">{t("nav.username")}</Label>
+						<Label htmlFor="username">{t("用戶名稱")}</Label>
 						<Input
 							id="username"
 							value={newUsername}
 							onChange={(e) => setNewUsername(e.target.value)}
-							placeholder={t("nav.username")}
+							placeholder={tString("用戶名稱")}
 						/>
 					</div>
 
 					<div className="flex flex-col gap-2">
 						<Button onClick={handleSave} disabled={isPending}>
 							{isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-							{t("nav.save")}
+							{t("儲存修改")}
 						</Button>
 						<Button
 							variant="outline"
@@ -477,7 +479,7 @@ function UserProfilePopover({
 							className="text-destructive hover:text-destructive"
 						>
 							<LogOut className="mr-2 h-4 w-4" />
-							{t("nav.logout")}
+							{t("登出")}
 						</Button>
 					</div>
 				</div>
@@ -505,7 +507,7 @@ export default function Navigator({ className }: { className?: string }) {
 					{user && (
 						<Link to="/calendar" className="flex items-center">
 							<Calendar className="mr-2 h-4 w-4 inline-block" />
-							{t("nav.calendar")}
+							{t("日曆")}
 						</Link>
 					)}
 				</div>
