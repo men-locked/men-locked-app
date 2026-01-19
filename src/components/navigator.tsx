@@ -314,13 +314,13 @@ function LanguageSelector() {
 					onClick={() => setLocale("zh-TW")}
 					className={cn(locale === "zh-TW" && "bg-accent")}
 				>
-					{t("lang.zh-TW")}
+					正體中文
 				</DropdownMenuItem>
 				<DropdownMenuItem
 					onClick={() => setLocale("en")}
 					className={cn(locale === "en" && "bg-accent")}
 				>
-					{t("lang.en")}
+					English
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

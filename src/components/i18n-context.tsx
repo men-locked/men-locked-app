@@ -23,8 +23,6 @@ const translations = {
 		"nav.email": "Email",
 		"nav.password": "密碼",
 		"nav.signInWithEmail": "使用電子郵件與密碼登入",
-		"lang.zh-TW": "繁體中文",
-		"lang.en": "English",
 	},
 	en: {
 		"nav.home": "Home",
@@ -40,8 +38,6 @@ const translations = {
 		"nav.email": "Email",
 		"nav.password": "Password",
 		"nav.signInWithEmail": "Sign in with email and password",
-		"lang.zh-TW": "Traditional Chinese",
-		"lang.en": "English",
 	},
 };
 
