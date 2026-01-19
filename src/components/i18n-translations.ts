@@ -86,4 +86,13 @@ export const predefinedTranslations: Translations = {
 	建立打卡: {
 		en: "Submit",
 	},
+	亮色介面: {
+		en: "Light",
+	},
+	暗色介面: {
+		en: "Dark",
+	},
+	系統預設: {
+		en: "System",
+	},
 };
