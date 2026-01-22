@@ -1,6 +1,5 @@
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useLocale } from "react-intlayer";
-import { Progress } from "@/components/ui/progress";
 
 declare global {
 	interface Window {
@@ -10,6 +9,7 @@ declare global {
 }
 
 type TranslatorContextType = {
+	tr: (s: string) => Promise<string>;
 	isLoading: boolean;
 };
 
@@ -25,7 +25,9 @@ export function TranslatorProvider({
 	const { locale } = useLocale();
 	const [isSupported] = useState("Translator" in self);
 	const [availability, setAvailability] = useState<Availability>("unavailable");
-	const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+	const [_downloadProgress, setDownloadProgress] = useState<number | null>(
+		null,
+	);
 	const [isLoading, setIsLoading] = useState(false);
 	const translatorRef = useRef<Translator | null>(null);
 
@@ -73,10 +75,15 @@ export function TranslatorProvider({
 		initTranslator();
 	}, [locale, availability, isSupported]);
 
+	const tr = async (s: string) => {
+		if (!translatorRef.current) return s;
+		return await translatorRef.current.translate(s);
+	};
+
 	return (
-		<TranslatorContext.Provider value={{ isLoading }}>
+		<TranslatorContext.Provider value={{ tr, isLoading }}>
 			{children}
-			{downloadProgress && downloadProgress < 100 && (
+			{/* {downloadProgress && downloadProgress < 100 && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
 					<div className="w-full max-w-sm space-y-4 p-4 text-center">
 						<div className="text-lg font-semibold">
@@ -91,7 +98,15 @@ export function TranslatorProvider({
 						</div>
 					</div>
 				</div>
-			)}
+			)} */}
 		</TranslatorContext.Provider>
 	);
+}
+
+export function useTranslator() {
+	const context = useContext(TranslatorContext);
+	if (context === undefined) {
+		throw new Error("useTranslator must be used within an TranslatorProvider");
+	}
+	return context;
 }
