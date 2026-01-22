@@ -5,12 +5,12 @@ import { Locales } from "intlayer";
 import {
 	Calendar,
 	Languages,
-	Loader2,
 	LogOut,
 	Upload,
 	UserIcon,
 } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
+import { useIntlayer } from "react-intlayer";
 import { toast } from "sonner";
 import { useLocalStorage } from "usehooks-ts";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -41,9 +41,11 @@ import { supabase } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/supabase/profile";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "./ui/skeleton";
+import { Spinner } from "./ui/spinner";
 import { useUser } from "./user-context";
 
 function ForgotPasswordDialog() {
+	const content = useIntlayer("navigator");
 	const [open, setOpen] = useState(false);
 	const form = useForm({
 		defaultValues: {
@@ -55,10 +57,12 @@ function ForgotPasswordDialog() {
 				{ redirectTo: `${window.location.origin}/auth/update-password` },
 			);
 			if (error) {
-				toast.error(`寄發密碼重設信件失敗：${error.message}`);
+				toast.error(
+					`${content.forgotPasswordDialog.failedMessage}${error.message}`,
+				);
 				return;
 			}
-			toast.success("密碼重設信件已寄出，請查收信箱");
+			toast.success(content.forgotPasswordDialog.successMessage);
 			setOpen(false);
 		},
 	});
@@ -66,13 +70,13 @@ function ForgotPasswordDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-				忘記密碼？
+				{content.forgotPasswordDialog.trigger}
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="flex flex-col gap-4">
-					<DialogTitle>寄發密碼重設認證信</DialogTitle>
+					<DialogTitle>{content.forgotPasswordDialog.title}</DialogTitle>
 					<DialogDescription>
-						為了保護您的帳號安全，我們將會寄發一封密碼重設認證到您的電子信箱，請依照信中的指示完成密碼重設流程。
+						{content.forgotPasswordDialog.description}
 					</DialogDescription>
 					<form
 						onSubmit={(e) => {
@@ -86,7 +90,9 @@ function ForgotPasswordDialog() {
 							name="email"
 							children={(field) => (
 								<>
-									<Label htmlFor={field.name}>Email</Label>
+									<Label htmlFor={field.name}>
+										{content.forgotPasswordDialog.email}
+									</Label>
 									<Input
 										id={field.name}
 										type="email"
@@ -102,7 +108,8 @@ function ForgotPasswordDialog() {
 							selector={(state) => [state.canSubmit, state.isSubmitting]}
 							children={([canSubmit, isSubmitting]) => (
 								<Button type="submit" disabled={!canSubmit}>
-									{isSubmitting ? "寄送中..." : "送出"}
+									{isSubmitting && <Spinner />}
+									{content.forgotPasswordDialog.submit}
 								</Button>
 							)}
 						/>
@@ -114,6 +121,7 @@ function ForgotPasswordDialog() {
 }
 
 function RegisterDialog() {
+	const content = useIntlayer("navigator");
 	const [open, setOpen] = useState(false);
 	const form = useForm({
 		defaultValues: {
@@ -132,10 +140,10 @@ function RegisterDialog() {
 				},
 			});
 			if (error) {
-				toast.error(`註冊失敗：${error.message}`);
+				toast.error(`${content.registerDialog.failedMessage}${error.message}`);
 				return;
 			}
-			toast.success("註冊成功，請到電子郵件信相依指示啟用帳戶");
+			toast.success(content.registerDialog.successMessage);
 			setOpen(false);
 		},
 	});
@@ -143,13 +151,13 @@ function RegisterDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline">註冊</Button>
+				<Button variant="outline">{content.registerDialog.trigger}</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader className="flex flex-col gap-4">
-					<DialogTitle>註冊新帳號</DialogTitle>
+					<DialogTitle>{content.registerDialog.title}</DialogTitle>
 					<DialogDescription>
-						請填寫您的電子郵件與密碼，完成註冊流程。
+						{content.registerDialog.description}
 					</DialogDescription>
 					<form
 						onSubmit={(e) => {
@@ -163,7 +171,9 @@ function RegisterDialog() {
 							name="email"
 							children={(field) => (
 								<>
-									<Label htmlFor={field.name}>Email</Label>
+									<Label htmlFor={field.name}>
+										{content.registerDialog.email}
+									</Label>
 									<Input
 										id={field.name}
 										type="email"
@@ -179,7 +189,9 @@ function RegisterDialog() {
 							name="password"
 							children={(field) => (
 								<>
-									<Label htmlFor={field.name}>密碼</Label>
+									<Label htmlFor={field.name}>
+										{content.registerDialog.password}
+									</Label>
 									<Input
 										id={field.name}
 										type="password"
@@ -195,7 +207,8 @@ function RegisterDialog() {
 							selector={(state) => [state.canSubmit, state.isSubmitting]}
 							children={([canSubmit, isSubmitting]) => (
 								<Button type="submit" disabled={!canSubmit}>
-									{isSubmitting ? "註冊中..." : "註冊"}
+									{isSubmitting && <Spinner />}
+									{content.registerDialog.submit}
 								</Button>
 							)}
 						/>
@@ -207,6 +220,7 @@ function RegisterDialog() {
 }
 
 function LoginButton() {
+	const content = useIntlayer("navigator");
 	const form = useForm({
 		defaultValues: {
 			email: "",
@@ -219,7 +233,7 @@ function LoginButton() {
 			});
 
 			if (error) {
-				toast.error(`登入失敗：${error.message}`);
+				toast.error(`${content.loginButton.failedMessage}${error.message}`);
 			}
 		},
 	});
@@ -227,7 +241,7 @@ function LoginButton() {
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
-				<Button variant="ghost">登入</Button>
+				<Button variant="ghost">{content.loginButton.title}</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-80">
 				<form
@@ -239,9 +253,11 @@ function LoginButton() {
 					className="grid gap-4"
 				>
 					<div className="space-y-2">
-						<h4 className="leading-none font-medium">登入</h4>
+						<h4 className="leading-none font-medium">
+							{content.loginButton.title}
+						</h4>
 						<p className="text-sm text-muted-foreground">
-							使用電子郵件與密碼登入
+							{content.loginButton.description}
 						</p>
 					</div>
 					<div className="grid gap-2">
@@ -249,7 +265,9 @@ function LoginButton() {
 							name="email"
 							children={(field) => (
 								<>
-									<Label htmlFor={field.name}>Email</Label>
+									<Label htmlFor={field.name}>
+										{content.loginButton.email}
+									</Label>
 									<Input
 										id={field.name}
 										type="email"
@@ -265,7 +283,9 @@ function LoginButton() {
 							name="password"
 							children={(field) => (
 								<>
-									<Label htmlFor={field.name}>密碼</Label>
+									<Label htmlFor={field.name}>
+										{content.loginButton.password}
+									</Label>
 									<Input
 										id={field.name}
 										type="password"
@@ -285,7 +305,8 @@ function LoginButton() {
 							children={([canSubmit, isSubmitting]) => (
 								<>
 									<Button type="submit" disabled={!canSubmit}>
-										{isSubmitting ? "登入中..." : "登入"}
+										{isSubmitting && <Spinner />}
+										{content.loginButton.submit}
 									</Button>
 								</>
 							)}
@@ -352,6 +373,7 @@ function UserProfilePopover({
 	setProfile,
 	signOut,
 }: UserProfilePopoverProps) {
+	const content = useIntlayer("navigator");
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -401,9 +423,9 @@ function UserProfilePopover({
 					});
 				}
 
-				toast.success("已更新用戶資料");
+				toast.success(content.userProfilePopover.successMessage);
 			} catch (error) {
-				toast.error(`更新用戶資料失敗：${error}`);
+				toast.error(`${content.userProfilePopover.failedMessage}${error}`);
 			}
 		});
 	};
@@ -423,8 +445,12 @@ function UserProfilePopover({
 			<PopoverContent className="w-80" align="end">
 				<div className="grid gap-4">
 					<div className="space-y-2">
-						<h4 className="font-medium leading-none">用戶資料</h4>
-						<p className="text-sm text-muted-foreground">更新您的個人資料</p>
+						<h4 className="font-medium leading-none">
+							{content.userProfilePopover.title}
+						</h4>
+						<p className="text-sm text-muted-foreground">
+							{content.userProfilePopover.description}
+						</p>
 					</div>
 
 					{/* Avatar Section */}
@@ -461,19 +487,20 @@ function UserProfilePopover({
 
 					{/* Username Section */}
 					<div className="grid gap-2">
-						<Label htmlFor="username">用戶名稱</Label>
+						<Label htmlFor="username">
+							{content.userProfilePopover.username}
+						</Label>
 						<Input
 							id="username"
 							value={newUsername}
 							onChange={(e) => setNewUsername(e.target.value)}
-							placeholder="用戶名稱"
 						/>
 					</div>
 
 					<div className="flex flex-col gap-2">
 						<Button onClick={handleSave} disabled={isPending}>
-							{isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-							儲存修改
+							{isPending && <Spinner />}
+							{content.userProfilePopover.submit}
 						</Button>
 						<Button
 							variant="outline"
@@ -481,7 +508,7 @@ function UserProfilePopover({
 							className="text-destructive hover:text-destructive"
 						>
 							<LogOut className="mr-2 h-4 w-4" />
-							登出
+							{content.userProfilePopover.logout}
 						</Button>
 					</div>
 				</div>
@@ -492,6 +519,7 @@ function UserProfilePopover({
 
 export default function Navigator({ className }: { className?: string }) {
 	const { user, profile, setProfile, isLoading, signOut } = useUser();
+	const content = useIntlayer("navigator");
 
 	return (
 		<header
@@ -508,7 +536,7 @@ export default function Navigator({ className }: { className?: string }) {
 					{user && (
 						<Link to="/calendar" className="flex items-center">
 							<Calendar className="mr-2 h-4 w-4 inline-block" />
-							日曆
+							{content.features.calendar}
 						</Link>
 					)}
 				</div>
