@@ -13,7 +13,7 @@ interface CreatePostProps {
 export function CreatePost({ onPostCreated }: CreatePostProps) {
 	const { user } = useUser();
 	const [content, setContent] = useState("");
-	const [images, setImages] = useState<File[]>([]);
+	const [images, setImages] = useState<{ id: string; file: File }[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -27,13 +27,13 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 				return;
 			}
 
-			const validFiles: File[] = [];
+			const validFiles: { id: string; file: File }[] = [];
 			for (const file of newFiles) {
 				if (file.size > 5 * 1024 * 1024) {
 					toast.error(`Image ${file.name} exceeds 5MB limit.`);
 					continue;
 				}
-				validFiles.push(file);
+				validFiles.push({ id: uuidv7(), file });
 			}
 
 			setImages((prev) => [...prev, ...validFiles]);
@@ -41,8 +41,8 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 		}
 	};
 
-	const removeImage = (index: number) => {
-		setImages((prev) => prev.filter((_, i) => i !== index));
+	const removeImage = (id: string) => {
+		setImages((prev) => prev.filter((img) => img.id !== id));
 	};
 
 	const handleSubmit = async () => {
@@ -68,7 +68,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 
 			// Upload images
 			if (images.length > 0) {
-				for (const file of images) {
+				for (const { file } of images) {
 					const fileExt = file.name.split(".").pop();
 					const fileName = `${user.id}/${uuidv7()}.${fileExt}`;
 
@@ -123,9 +123,9 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 
 			{images.length > 0 && (
 				<div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-4">
-					{images.map((file, index) => (
+					{images.map(({ id, file }, index) => (
 						<div
-							key={index}
+							key={id}
 							className="relative group aspect-square rounded-md overflow-hidden bg-muted"
 						>
 							<img
@@ -135,7 +135,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 							/>
 							<button
 								type="button"
-								onClick={() => removeImage(index)}
+								onClick={() => removeImage(id)}
 								className="absolute top-1 right-1 p-1 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
 							>
 								<X className="w-4 h-4" />

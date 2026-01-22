@@ -52,7 +52,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 	const [currentImages, setCurrentImages] = useState<string[]>(
 		post.images || [],
 	);
-	const [newImages, setNewImages] = useState<File[]>([]);
+	const [newImages, setNewImages] = useState<{ id: string; file: File }[]>([]);
 	const [isSaving, setIsSaving] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -108,7 +108,10 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 				return true;
 			});
 
-			setNewImages((prev) => [...prev, ...validFiles]);
+			setNewImages((prev) => [
+				...prev,
+				...validFiles.map((file) => ({ id: uuidv7(), file })),
+			]);
 			if (fileInputRef.current) fileInputRef.current.value = "";
 		}
 	};
@@ -145,7 +148,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 
 			// Upload new images
 			if (newImages.length > 0 && user) {
-				for (const file of newImages) {
+				for (const { file } of newImages) {
 					const fileExt = file.name.split(".").pop();
 					const fileName = `${user.id}/${uuidv7()}.${fileExt}`;
 
@@ -311,8 +314,8 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 										</button>
 									</div>
 								))}
-								{newImages.map((file, idx) => (
-									<div key={`new-${idx}`} className="relative w-20 h-20 group">
+								{newImages.map(({ id, file }) => (
+									<div key={id} className="relative w-20 h-20 group">
 										<img
 											src={URL.createObjectURL(file)}
 											alt="New upload"
@@ -321,7 +324,9 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 										<button
 											type="button"
 											onClick={() =>
-												setNewImages((prev) => prev.filter((_, i) => i !== idx))
+												setNewImages((prev) =>
+													prev.filter((item) => item.id !== id),
+												)
 											}
 											className="absolute -top-1 -right-1 p-0.5 bg-destructive rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
 										>
