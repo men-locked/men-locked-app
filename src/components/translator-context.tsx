@@ -1,5 +1,6 @@
 import { createContext, useEffect, useRef, useState } from "react";
 import { useLocale } from "react-intlayer";
+import { Progress } from "@/components/ui/progress";
 
 declare global {
 	interface Window {
@@ -75,6 +76,22 @@ export function TranslatorProvider({
 	return (
 		<TranslatorContext.Provider value={{ isLoading }}>
 			{children}
+			{downloadProgress && downloadProgress < 100 && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+					<div className="w-full max-w-sm space-y-4 p-4 text-center">
+						<div className="text-lg font-semibold">
+							下載翻譯模型中...
+							<span className="text-md text-muted-foreground truncate flex-1 block">
+								Downloading Language Model...
+							</span>
+						</div>
+						<Progress value={downloadProgress} className="w-full" />
+						<div className="text-sm text-muted-foreground">
+							{downloadProgress.toFixed(0)}%
+						</div>
+					</div>
+				</div>
+			)}
 		</TranslatorContext.Provider>
 	);
 }
