@@ -7,10 +7,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useI18n } from "./i18n-context";
 
 export function ThemeToggle() {
-	const { t } = useI18n();
 	const { setTheme } = useTheme();
 
 	return (
@@ -24,13 +22,13 @@ export function ThemeToggle() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem onClick={() => setTheme("light")}>
-					{t("亮色介面")}
+					亮色介面
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("dark")}>
-					{t("暗色介面")}
+					暗色介面
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("system")}>
-					{t("系統預設")}
+					系統預設
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

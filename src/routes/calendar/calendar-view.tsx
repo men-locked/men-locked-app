@@ -1,5 +1,4 @@
 import type { Tables } from "database.types";
-import { useI18n } from "@/components/i18n-context";
 import {
 	CalendarBody,
 	CalendarDate,
@@ -18,8 +17,6 @@ export default function CalendarView({
 }: {
 	events: Tables<"events">[];
 }) {
-	const { locale } = useI18n();
-
 	const features: Feature[] = events.map((ev) => {
 		const statusObj = statuses.find((s) => s.id === ev.status);
 		return {
@@ -37,7 +34,7 @@ export default function CalendarView({
 	});
 
 	return (
-		<CalendarProvider locale={locale}>
+		<CalendarProvider locale="zh-TW">
 			<CalendarDate>
 				<CalendarDatePicker>
 					<CalendarYearPicker
