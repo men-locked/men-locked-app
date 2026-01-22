@@ -47,19 +47,7 @@ const navigatorContent = {
 			description: t({
 				"zh-TW":
 					"為了保護您的帳號安全，我們將會寄發一封密碼重設認證到您的電子信箱，請依照信中的指示完成密碼重設流程。",
-				en: async (): Promise<React.ReactNode> => {
-					const original =
-						"為了保護您的帳號安全，我們將會寄發一封密碼重設認證到您的電子信箱，請依照信中的指示完成密碼重設流程。";
-
-					return (
-						<>
-							!!!TODO: Auto Translation by Built-in AI!!!
-							<span className="text-[0.8em] opacity-60 italic font-normal block">
-								{original}
-							</span>
-						</>
-					);
-				},
+				en: "We'll send a password reset mail to your email address. Please follow the instructions in the email to complete the password reset process.",
 			}),
 			email: t({
 				"zh-TW": "Email",

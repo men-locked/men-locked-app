@@ -1,4 +1,3 @@
-import { t } from "intlayer";
 import { createContext, useEffect, useRef, useState } from "react";
 import { useLocale } from "react-intlayer";
 
@@ -10,7 +9,6 @@ declare global {
 }
 
 type TranslatorContextType = {
-	tr: (s: string) => void;
 	isLoading: boolean;
 };
 
@@ -74,29 +72,8 @@ export function TranslatorProvider({
 		initTranslator();
 	}, [locale, availability, isSupported]);
 
-	const translateTemplate = (translated: string, original: string) => (
-		<>
-			<p>{translated}</p>
-			<p className="text-[0.8em] opacity-60 italic font-normal">{original}</p>
-		</>
-	);
-
-	const tr = (s: string) => {
-		return t({
-			"zh-TW": s,
-			en: async () => {
-				const translator = translatorRef.current;
-				if (!translator)
-					return translateTemplate("Failed to initialize translator", s);
-
-				const translated = await translator.translate(s);
-				return translateTemplate(translated, s);
-			},
-		});
-	};
-
 	return (
-		<TranslatorContext.Provider value={{ tr, isLoading }}>
+		<TranslatorContext.Provider value={{ isLoading }}>
 			{children}
 		</TranslatorContext.Provider>
 	);

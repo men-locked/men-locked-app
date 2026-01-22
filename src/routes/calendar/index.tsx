@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/components/user-context";
 import { supabase } from "@/lib/supabase/client";
 import { fetchEvents } from "@/lib/supabase/event";
-import CalendarView from "./calendar-view";
+import CalendarView from "./-calendar-view";
 
 export const Route = createFileRoute("/calendar/")({
 	async beforeLoad() {
