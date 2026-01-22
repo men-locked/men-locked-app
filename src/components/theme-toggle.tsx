@@ -1,4 +1,5 @@
 import { Moon, Sun } from "lucide-react";
+import { useIntlayer } from "react-intlayer";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,11 +8,10 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useI18n } from "./i18n-context";
 
 export function ThemeToggle() {
-	const { t } = useI18n();
 	const { setTheme } = useTheme();
+	const content = useIntlayer("theme-toggle");
 
 	return (
 		<DropdownMenu>
@@ -24,13 +24,13 @@ export function ThemeToggle() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem onClick={() => setTheme("light")}>
-					{t("亮色介面")}
+					{content.light}
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("dark")}>
-					{t("暗色介面")}
+					{content.dark}
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("system")}>
-					{t("系統預設")}
+					{content.system}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

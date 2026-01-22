@@ -1,27 +1,27 @@
 export const statuses = [
 	{
 		id: "0",
-		name: "未射",
+		name: "no_cum",
 		color: "#ffffff",
 	},
 	{
 		id: "1",
-		name: "鎖射",
+		name: "cum_in_cage",
 		color: "#64d929",
 	},
 	{
 		id: "2",
-		name: "尻射",
+		name: "jerk_off",
 		color: "#d9c129",
 	},
 	{
 		id: "3",
-		name: "夢遺",
+		name: "wet_dream",
 		color: "#29a4d9",
 	},
 	{
 		id: "4",
-		name: "邊緣寸止",
+		name: "runied_orgasm",
 		color: "#8a29d9",
 	},
 ];

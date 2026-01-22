@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { fetchEvents } from "@/lib/supabase/event";
 import { fetchProfile } from "@/lib/supabase/profile";
-import CalendarView from "./calendar-view";
+import CalendarView from "./-calendar-view";
 
 export const Route = createFileRoute("/calendar/$user")({
 	component: RouteComponent,

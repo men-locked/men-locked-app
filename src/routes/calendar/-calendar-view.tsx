@@ -1,5 +1,5 @@
 import type { Tables } from "database.types";
-import { useI18n } from "@/components/i18n-context";
+import { useIntlayer, useLocale } from "react-intlayer";
 import {
 	CalendarBody,
 	CalendarDate,
@@ -18,7 +18,8 @@ export default function CalendarView({
 }: {
 	events: Tables<"events">[];
 }) {
-	const { locale } = useI18n();
+	const { locale } = useLocale();
+	const content = useIntlayer("checkout-dialog");
 
 	const features: Feature[] = events.map((ev) => {
 		const statusObj = statuses.find((s) => s.id === ev.status);
@@ -29,7 +30,15 @@ export default function CalendarView({
 			endAt: new Date(ev.created_at),
 			status: {
 				id: statusObj?.id || "-1",
-				name: statusObj?.name || "Unknown",
+				name:
+					(content.statuses[
+						statusObj?.name as
+							| "no_cum"
+							| "cum_in_cage"
+							| "jerk_off"
+							| "wet_dream"
+							| "runied_orgasm"
+					] as string) || "Unknown",
 				color: statusObj?.color || "#808080",
 			},
 			imageUrl: ev.image_url || undefined,

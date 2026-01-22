@@ -9,17 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarIndexRouteImport } from './routes/calendar/index'
 import { Route as CalendarUserRouteImport } from './routes/calendar/$user'
 import { Route as AuthUpdatePasswordRouteImport } from './routes/auth/update-password'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,14 +37,12 @@ const AuthUpdatePasswordRoute = AuthUpdatePasswordRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
   '/calendar/$user': typeof CalendarUserRoute
   '/calendar': typeof CalendarIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
   '/calendar/$user': typeof CalendarUserRoute
   '/calendar': typeof CalendarIndexRoute
@@ -58,25 +50,18 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
   '/calendar/$user': typeof CalendarUserRoute
   '/calendar/': typeof CalendarIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/about'
-    | '/auth/update-password'
-    | '/calendar/$user'
-    | '/calendar'
+  fullPaths: '/' | '/auth/update-password' | '/calendar/$user' | '/calendar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/auth/update-password' | '/calendar/$user' | '/calendar'
+  to: '/' | '/auth/update-password' | '/calendar/$user' | '/calendar'
   id:
     | '__root__'
     | '/'
-    | '/about'
     | '/auth/update-password'
     | '/calendar/$user'
     | '/calendar/'
@@ -84,7 +69,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
   AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute
   CalendarUserRoute: typeof CalendarUserRoute
   CalendarIndexRoute: typeof CalendarIndexRoute
@@ -92,13 +76,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -132,7 +109,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
   AuthUpdatePasswordRoute: AuthUpdatePasswordRoute,
   CalendarUserRoute: CalendarUserRoute,
   CalendarIndexRoute: CalendarIndexRoute,
