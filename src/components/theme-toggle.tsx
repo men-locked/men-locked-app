@@ -1,4 +1,5 @@
 import { Moon, Sun } from "lucide-react";
+import { useIntlayer } from "react-intlayer";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,7 @@ import {
 
 export function ThemeToggle() {
 	const { setTheme } = useTheme();
+	const content = useIntlayer("theme-toggle");
 
 	return (
 		<DropdownMenu>
@@ -22,13 +24,13 @@ export function ThemeToggle() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem onClick={() => setTheme("light")}>
-					亮色介面
+					{content.light}
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("dark")}>
-					暗色介面
+					{content.dark}
 				</DropdownMenuItem>
 				<DropdownMenuItem onClick={() => setTheme("system")}>
-					系統預設
+					{content.system}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

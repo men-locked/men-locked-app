@@ -4,6 +4,7 @@ import "./__root.css";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { Locales } from "intlayer";
 import { IntlayerProvider, useLocale } from "react-intlayer";
 import Navigator from "@/components/navigator";
 import { Toaster } from "@/components/ui/sonner";
