@@ -2,13 +2,7 @@ import type { User } from "@supabase/supabase-js";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { Locales } from "intlayer";
-import {
-	Calendar,
-	Languages,
-	LogOut,
-	Upload,
-	UserIcon,
-} from "lucide-react";
+import { Calendar, Languages, LogOut, Upload, UserIcon } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { useIntlayer } from "react-intlayer";
 import { toast } from "sonner";

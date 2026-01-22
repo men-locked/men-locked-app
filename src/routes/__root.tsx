@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { IntlayerProvider, useLocale } from "react-intlayer";
 import { useLocalStorage } from "usehooks-ts";
 import Navigator from "@/components/navigator";
+import { TranslatorProvider } from "@/components/translator-context";
 import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/components/user-context";
 
@@ -26,15 +27,17 @@ const RootLayout = () => {
 	return (
 		<>
 			<IntlayerProvider locale={locale}>
-				<UserProvider>
-					<ThemeProvider defaultTheme="dark">
-						<Navigator />
-						<main className="flex min-h-[calc(100vh-4rem)] w-full flex-col items-center p-6 md:p-10">
-							<Outlet />
-						</main>
-						<Toaster />
-					</ThemeProvider>
-				</UserProvider>
+				<TranslatorProvider>
+					<UserProvider>
+						<ThemeProvider defaultTheme="dark">
+							<Navigator />
+							<main className="flex min-h-[calc(100vh-4rem)] w-full flex-col items-center p-6 md:p-10">
+								<Outlet />
+							</main>
+							<Toaster />
+						</ThemeProvider>
+					</UserProvider>
+				</TranslatorProvider>
 			</IntlayerProvider>
 			<TanStackDevtools
 				plugins={[
