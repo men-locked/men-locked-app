@@ -1,4 +1,6 @@
 import { useState, useTransition } from "react";
+import { useIntlayer } from "react-intlayer";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -19,6 +21,7 @@ import {
 } from "@/components/ui/shadcn-io/image-crop";
 import { statuses } from "@/lib/constants";
 import { createEvent } from "@/lib/supabase/event";
+import { Spinner } from "./ui/spinner";
 import { useUser } from "./user-context";
 
 function dataURLtoBlob(dataurl: string) {
@@ -34,9 +37,10 @@ function dataURLtoBlob(dataurl: string) {
 }
 
 export function CheckoutDialog() {
+	const content = useIntlayer("checkout-dialog");
 	const { user } = useUser();
 	const [open, setOpen] = useState(false);
-	const [selectedStatus, setSelectedStatus] = useState<string>("foo");
+	const [selectedStatus, setSelectedStatus] = useState<string | undefined>();
 	const [file, setFile] = useState<File | null>(null);
 	const [croppedDataUrl, setCroppedDataUrl] = useState<string | null>(null);
 	const [isPending, startTransition] = useTransition();
@@ -59,6 +63,8 @@ export function CheckoutDialog() {
 			try {
 				const blob = dataURLtoBlob(croppedDataUrl);
 				const formData = new FormData();
+
+				if (!selectedStatus) throw new Error("missing required field 'status'");
 				formData.append("status", selectedStatus);
 				formData.append("image", blob, file.name);
 
@@ -67,9 +73,9 @@ export function CheckoutDialog() {
 				// Reset state
 				setFile(null);
 				setCroppedDataUrl(null);
-				setSelectedStatus("foo");
+				setSelectedStatus(undefined);
 			} catch (error) {
-				console.error("Failed to create event:", error);
+				toast.error(`${content.failedMessage}${error}`);
 			}
 		});
 	};
@@ -77,17 +83,17 @@ export function CheckoutDialog() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button>打卡</Button>
+				<Button>{content.trigger}</Button>
 			</DialogTrigger>
 			<DialogContent className="max-w-xl">
 				<DialogHeader>
-					<DialogTitle>打卡</DialogTitle>
-					<DialogDescription>建立打卡記錄</DialogDescription>
+					<DialogTitle>{content.title}</DialogTitle>
+					<DialogDescription>{content.description}</DialogDescription>
 				</DialogHeader>
 
 				<div className="grid gap-6 py-4">
 					<div className="grid gap-2">
-						<Label>今日狀態</Label>
+						<Label>{content.status}</Label>
 						<RadioGroup
 							value={selectedStatus}
 							onValueChange={setSelectedStatus}
@@ -103,7 +109,16 @@ export function CheckoutDialog() {
 										htmlFor={`status-${status.id}`}
 										style={{ color: status.color }}
 									>
-										{status.name}
+										{
+											content.statuses[
+												status.name as
+													| "no_cum"
+													| "cum_in_cage"
+													| "jerk_off"
+													| "wet_dream"
+													| "runied_orgasm"
+											]
+										}
 									</Label>
 								</div>
 							))}
@@ -111,7 +126,7 @@ export function CheckoutDialog() {
 					</div>
 
 					<div className="grid gap-2">
-						<Label htmlFor="image">照片</Label>
+						<Label htmlFor="image">{content.photo}</Label>
 						<Input
 							id="image"
 							type="file"
@@ -127,8 +142,8 @@ export function CheckoutDialog() {
 								<div className="flex flex-col gap-4">
 									<ImageCropContent />
 									<div className="flex justify-center gap-2">
-										<ImageCropApply>裁切</ImageCropApply>
-										<ImageCropReset>重設</ImageCropReset>
+										<ImageCropApply>{content.imageCrop.crop}</ImageCropApply>
+										<ImageCropReset>{content.imageCrop.reset}</ImageCropReset>
 									</div>
 								</div>
 							</ImageCrop>
@@ -137,7 +152,7 @@ export function CheckoutDialog() {
 
 					{croppedDataUrl && (
 						<div className="grid gap-2">
-							<Label>預覽</Label>
+							<Label>{content.imageCrop.preview}</Label>
 							<div className="relative aspect-square w-32 overflow-hidden rounded-md border">
 								<img
 									src={croppedDataUrl}
@@ -150,7 +165,7 @@ export function CheckoutDialog() {
 								size="sm"
 								onClick={() => setCroppedDataUrl(null)}
 							>
-								重新裁切
+								{content.imageCrop.recrop}
 							</Button>
 						</div>
 					)}
@@ -159,7 +174,8 @@ export function CheckoutDialog() {
 						onClick={handleCreate}
 						disabled={!file || !croppedDataUrl || isPending}
 					>
-						{isPending ? "正在建立…" : "建立打卡"}
+						{isPending && <Spinner />}
+						{content.submit}
 					</Button>
 				</div>
 			</DialogContent>
