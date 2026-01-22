@@ -1,6 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
+import { Locales } from "intlayer";
 import {
 	Calendar,
 	Languages,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
+import { useLocalStorage } from "usehooks-ts";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -297,6 +299,11 @@ function LoginButton() {
 }
 
 function LanguageSelector() {
+	const [locale, setLocale] = useLocalStorage<string | undefined>(
+		"locale",
+		undefined,
+	);
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -306,8 +313,22 @@ function LanguageSelector() {
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => {}}>正體中文</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => {}}>English</DropdownMenuItem>
+				<DropdownMenuItem
+					onClick={() => {
+						setLocale(Locales.CHINESE_TAIWAN);
+					}}
+					className={cn(locale === Locales.CHINESE_TAIWAN && "bg-accent")}
+				>
+					正體中文
+				</DropdownMenuItem>
+				<DropdownMenuItem
+					onClick={() => {
+						setLocale(Locales.ENGLISH);
+					}}
+					className={cn(locale === Locales.ENGLISH && "bg-accent")}
+				>
+					English
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

@@ -4,18 +4,28 @@ import "./__root.css";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { Locales } from "intlayer";
+import type { Locales } from "intlayer";
+import { useEffect } from "react";
 import { IntlayerProvider, useLocale } from "react-intlayer";
+import { useLocalStorage } from "usehooks-ts";
 import Navigator from "@/components/navigator";
 import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/components/user-context";
 
 const RootLayout = () => {
 	const { defaultLocale } = useLocale();
+	const [locale, setLocale] = useLocalStorage<string | undefined>(
+		"locale",
+		undefined,
+	);
+
+	useEffect(() => {
+		if (!locale) setLocale(defaultLocale);
+	}, [defaultLocale, locale, setLocale]);
 
 	return (
 		<>
-			<IntlayerProvider locale={defaultLocale}>
+			<IntlayerProvider locale={locale}>
 				<UserProvider>
 					<ThemeProvider defaultTheme="dark">
 						<Navigator />
