@@ -4,6 +4,7 @@ import { devtools } from "@tanstack/devtools-vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { intlayer } from "vite-intlayer"; // Add the plugin to the Vite plugin list
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -15,6 +16,7 @@ export default defineConfig({
 		devtools(),
 		react(),
 		tailwindcss(),
+		intlayer(),
 	],
 	resolve: {
 		alias: {
