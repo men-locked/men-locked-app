@@ -22,6 +22,7 @@ export function PostList() {
 						avatar_url
 					)
 				`)
+				.is("deleted_at", null)
 				.order("created_at", { ascending: false });
 
 			if (error) throw error;

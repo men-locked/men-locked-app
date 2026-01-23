@@ -122,22 +122,10 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 	const handleDelete = async () => {
 		setIsDeleting(true);
 		try {
-			// Delete images from storage first
-			if (post.images && post.images.length > 0) {
-				const filesToRemove = post.images
-					.map((url: string) => {
-						const parts = url.split("/posts/");
-						return parts.length > 1 ? parts[1] : null;
-					})
-					.filter((path): path is string => Boolean(path));
-
-				if (filesToRemove.length > 0) {
-					await supabase.storage.from("posts").remove(filesToRemove);
-				}
-			}
-
-			const { error } = await supabase.from("posts").delete().eq("id", post.id);
-			if (error) throw error;
+			const { error } = await supabase
+				.from("posts")
+				.update({ deleted_at: new Date().toISOString() })
+				.eq("id", post.id);
 
 			if (error) throw error;
 
