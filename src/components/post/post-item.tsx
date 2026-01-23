@@ -10,6 +10,16 @@ import {
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { uuidv7 } from "uuidv7";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,6 +57,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 	const { user } = useUser();
 	const [isEditing, setIsEditing] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
 	// Edit state
 	const [editContent, setEditContent] = useState(post.content);
@@ -60,7 +71,6 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 	const isOwner = user?.id === post.user_id;
 
 	const handleDelete = async () => {
-		if (!confirm("Are you sure you want to delete this post?")) return;
 		setIsDeleting(true);
 		try {
 			// Delete images from storage first
@@ -81,6 +91,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 			if (error) throw error;
 
 			toast.success("Post deleted");
+			setShowDeleteDialog(false);
 			onDelete();
 		} catch (error) {
 			console.error("Error deleting post:", error);
@@ -230,7 +241,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 											<Pencil className="w-4 h-4 mr-2" /> Edit
 										</DropdownMenuItem>
 										<DropdownMenuItem
-											onClick={handleDelete}
+											onClick={() => setShowDeleteDialog(true)}
 											className="text-destructive focus:text-destructive"
 										>
 											<Trash2 className="w-4 h-4 mr-2" />{" "}
@@ -376,6 +387,37 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+			<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action cannot be undone. This will permanently delete your
+							post and remove the data from our servers.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={(e) => {
+								e.preventDefault();
+								handleDelete();
+							}}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+							disabled={isDeleting}
+						>
+							{isDeleting ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Deleting...
+								</>
+							) : (
+								"Delete"
+							)}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</Card>
 	);
 }
