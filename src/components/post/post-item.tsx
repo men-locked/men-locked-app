@@ -322,6 +322,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 
 				{detectedLang &&
 					detectedLang !== locale &&
+					!(locale === "zh-TW" && detectedLang.startsWith("zh")) &&
 					(post.content || "").trim().length > 0 && (
 						<Button
 							variant="ghost"
