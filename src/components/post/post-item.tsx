@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { uuidv7 } from "uuidv7";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
 	Carousel,
 	CarouselContent,
@@ -190,93 +191,94 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 	};
 
 	return (
-		<div className="border border-border/50 rounded-lg p-5 bg-card/50 hover:bg-card/80 transition-colors mb-4">
-			<div className="flex gap-3">
-				<Avatar className="w-10 h-10 border border-border">
-					<AvatarImage src={post.profiles?.avatar_url || ""} />
-					<AvatarFallback>
-						{post.profiles?.username?.[0]?.toUpperCase() || "?"}
-					</AvatarFallback>
-				</Avatar>
-
-				<div className="flex-1 min-w-0">
-					<div className="flex justify-between items-start">
-						<div>
-							<div className="font-semibold text-foreground">
-								{post.profiles?.username || "Unknown User"}
-							</div>
-							<div className="text-xs text-muted-foreground">
-								{formatDistanceToNow(new Date(post.created_at), {
-									addSuffix: true,
-								})}
-							</div>
-						</div>
-
-						{isOwner && (
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="ghost"
-										size="icon"
-										className="h-8 w-8 -mr-2"
-										disabled={isDeleting}
-									>
-										<MoreHorizontal className="w-4 h-4" />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end">
-									<DropdownMenuItem onClick={() => setIsEditing(true)}>
-										<Pencil className="w-4 h-4 mr-2" /> Edit
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={handleDelete}
-										className="text-destructive focus:text-destructive"
-									>
-										<Trash2 className="w-4 h-4 mr-2" />{" "}
-										{isDeleting ? "Deleting..." : "Delete"}
-									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						)}
-					</div>
-
-					<p className="mt-2 text-foreground whitespace-pre-wrap wrap-break-word">
-						{post.content}
-					</p>
-
-					{post.images && post.images.length > 0 && (
-						<div className="mt-3">
-							{post.images.length === 1 ? (
-								<div className="rounded-md overflow-hidden border border-border max-h-[400px] w-fit">
-									<img
-										src={post.images[0]}
-										alt="Post attachment"
-										className="max-w-full h-auto object-cover"
-									/>
+		<Card>
+			<CardContent className="grid gap-3">
+				<div className="flex gap-3">
+					<Avatar className="w-10 h-10 border border-border">
+						<AvatarImage src={post.profiles?.avatar_url || ""} />
+						<AvatarFallback>
+							{post.profiles?.username?.[0]?.toUpperCase() || "?"}
+						</AvatarFallback>
+					</Avatar>
+					<div className="flex-1 min-w-0">
+						<div className="flex justify-between items-start">
+							<div>
+								<div className="font-semibold text-foreground">
+									{post.profiles?.username || "Unknown User"}
 								</div>
-							) : (
-								<Carousel className="w-full max-w-[90%] mx-auto">
-									<CarouselContent>
-										{post.images.map((url: string, idx: number) => (
-											<CarouselItem key={url}>
-												<div className="p-1">
-													<img
-														src={url}
-														alt={`Slide ${idx + 1}`}
-														className="rounded-md object-cover w-full max-h-[400px]"
-													/>
-												</div>
-											</CarouselItem>
-										))}
-									</CarouselContent>
-									<CarouselPrevious />
-									<CarouselNext />
-								</Carousel>
+								<div className="text-xs text-muted-foreground">
+									{formatDistanceToNow(new Date(post.created_at), {
+										addSuffix: true,
+									})}
+								</div>
+							</div>
+
+							{isOwner && (
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon"
+											className="h-8 w-8 -mr-2"
+											disabled={isDeleting}
+										>
+											<MoreHorizontal className="w-4 h-4" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										<DropdownMenuItem onClick={() => setIsEditing(true)}>
+											<Pencil className="w-4 h-4 mr-2" /> Edit
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											onClick={handleDelete}
+											className="text-destructive focus:text-destructive"
+										>
+											<Trash2 className="w-4 h-4 mr-2" />{" "}
+											{isDeleting ? "Deleting..." : "Delete"}
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
 							)}
 						</div>
-					)}
+					</div>
 				</div>
-			</div>
+
+				<p className="mt-2 text-foreground whitespace-pre-wrap wrap-break-word">
+					{post.content}
+				</p>
+
+				{post.images && post.images.length > 0 && (
+					<div className="mt-3">
+						{post.images.length === 1 ? (
+							<div className="rounded-md overflow-hidden border border-border max-h-[400px] w-fit">
+								<img
+									src={post.images[0]}
+									alt="Post attachment"
+									className="max-w-full h-auto object-cover"
+								/>
+							</div>
+						) : (
+							<Carousel className="w-full max-w-[90%] mx-auto">
+								<CarouselContent>
+									{post.images.map((url: string, idx: number) => (
+										<CarouselItem key={url}>
+											<div className="p-1">
+												<img
+													src={url}
+													alt={`Slide ${idx + 1}`}
+													className="rounded-md object-cover w-full max-h-[400px]"
+												/>
+											</div>
+										</CarouselItem>
+									))}
+								</CarouselContent>
+								<CarouselPrevious />
+								<CarouselNext />
+							</Carousel>
+						)}
+					</div>
+				)}
+			</CardContent>
 
 			<Dialog open={isEditing} onOpenChange={setIsEditing}>
 				<DialogContent className="sm:max-w-[500px]">
@@ -374,6 +376,6 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</div>
+		</Card>
 	);
 }
