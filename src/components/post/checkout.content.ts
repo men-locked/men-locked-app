@@ -1,7 +1,7 @@
 import { type Dictionary, t } from "intlayer";
 
 const checkoutDialogContent = {
-	key: "checkout-dialog",
+	key: "checkout",
 	content: {
 		trigger: t({
 			"zh-TW": "打卡",
