@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useIntlayer } from "react-intlayer";
 import { supabase } from "@/lib/supabase/client";
 import { CreatePost } from "./create-post";
 import { PostItem } from "./post-item";
@@ -8,6 +9,7 @@ import type { PostWithProfile } from "./types";
 export function PostList() {
 	const [posts, setPosts] = useState<PostWithProfile[]>([]);
 	const [loading, setLoading] = useState(true);
+	const content = useIntlayer("post-list");
 
 	const fetchPosts = useCallback(async () => {
 		try {
@@ -55,7 +57,7 @@ export function PostList() {
 					))}
 					{posts.length === 0 && (
 						<div className="text-center py-10 text-muted-foreground">
-							No posts yet. Be the first to share something!
+							{content.empty}
 						</div>
 					)}
 				</div>

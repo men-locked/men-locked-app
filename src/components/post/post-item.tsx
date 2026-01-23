@@ -8,6 +8,7 @@ import {
 	X,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useIntlayer } from "react-intlayer";
 import { toast } from "sonner";
 import { uuidv7 } from "uuidv7";
 import {
@@ -55,6 +56,7 @@ interface PostItemProps {
 
 export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 	const { user } = useUser();
+	const content = useIntlayer("post-item");
 	const [isEditing, setIsEditing] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -90,12 +92,14 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 			const { error } = await supabase.from("posts").delete().eq("id", post.id);
 			if (error) throw error;
 
-			toast.success("Post deleted");
+			if (error) throw error;
+
+			toast.success(content.toasts.deleteSuccess);
 			setShowDeleteDialog(false);
 			onDelete();
 		} catch (error) {
 			console.error("Error deleting post:", error);
-			toast.error("Failed to delete post");
+			toast.error(content.toasts.deleteError);
 		} finally {
 			setIsDeleting(false);
 		}
@@ -108,13 +112,13 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 				currentImages.length + newImages.length + files.length;
 
 			if (totalImages > 5) {
-				toast.error("Total images cannot exceed 5");
+				toast.error(content.toasts.updateMaxImages);
 				return;
 			}
 
 			const validFiles = files.filter((file) => {
 				if (file.size > 5 * 1024 * 1024) {
-					toast.error(`Image ${file.name} exceeds 5MB`);
+					toast.error(`${content.toasts.updateImageSize}: ${file.name}`);
 					return false;
 				}
 				return true;
@@ -134,7 +138,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 			currentImages.length === 0 &&
 			newImages.length === 0
 		) {
-			toast.error("Post cannot be empty");
+			toast.error(content.toasts.updateEmpty);
 			return;
 		}
 
@@ -189,13 +193,15 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 
 			if (error) throw error;
 
-			toast.success("Post updated");
+			if (error) throw error;
+
+			toast.success(content.toasts.updateSuccess);
 			setIsEditing(false);
 			setNewImages([]);
 			onUpdate();
 		} catch (error) {
 			console.error("Error updating post:", error);
-			toast.error("Failed to update post");
+			toast.error(content.toasts.updateError);
 		} finally {
 			setIsSaving(false);
 		}
@@ -215,7 +221,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 						<div className="flex justify-between items-start">
 							<div>
 								<div className="font-semibold text-foreground">
-									{post.profiles?.username || "Unknown User"}
+									{post.profiles?.username || content.unknownUser}
 								</div>
 								<div className="text-xs text-muted-foreground">
 									{formatDistanceToNow(new Date(post.created_at), {
@@ -238,14 +244,14 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end">
 										<DropdownMenuItem onClick={() => setIsEditing(true)}>
-											<Pencil className="w-4 h-4 mr-2" /> Edit
+											<Pencil className="w-4 h-4 mr-2" /> {content.menu.edit}
 										</DropdownMenuItem>
 										<DropdownMenuItem
 											onClick={() => setShowDeleteDialog(true)}
 											className="text-destructive focus:text-destructive"
 										>
 											<Trash2 className="w-4 h-4 mr-2" />{" "}
-											{isDeleting ? "Deleting..." : "Delete"}
+											{isDeleting ? content.menu.deleting : content.menu.delete}
 										</DropdownMenuItem>
 									</DropdownMenuContent>
 								</DropdownMenu>
@@ -294,7 +300,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 			<Dialog open={isEditing} onOpenChange={setIsEditing}>
 				<DialogContent className="sm:max-w-[500px]">
 					<DialogHeader>
-						<DialogTitle>Edit Post</DialogTitle>
+						<DialogTitle>{content.dialog.edit.title}</DialogTitle>
 					</DialogHeader>
 
 					<div className="py-4 space-y-4">
@@ -356,7 +362,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 									>
 										<ImageIcon className="w-6 h-6 mb-1 text-muted-foreground" />
 										<span className="text-[10px] text-muted-foreground">
-											Add
+											{content.dialog.edit.add}
 										</span>
 									</Button>
 								)}
@@ -378,11 +384,11 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 
 					<DialogFooter>
 						<Button variant="outline" onClick={() => setIsEditing(false)}>
-							Cancel
+							{content.dialog.edit.cancel}
 						</Button>
 						<Button onClick={handleSave} disabled={isSaving}>
 							{isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-							Save Changes
+							{content.dialog.edit.save}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -390,14 +396,15 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 			<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+						<AlertDialogTitle>{content.dialog.delete.title}</AlertDialogTitle>
 						<AlertDialogDescription>
-							This action cannot be undone. This will permanently delete your
-							post and remove the data from our servers.
+							{content.dialog.delete.description}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+						<AlertDialogCancel disabled={isDeleting}>
+							{content.dialog.delete.cancel}
+						</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={(e) => {
 								e.preventDefault();
@@ -409,10 +416,10 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 							{isDeleting ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Deleting...
+									{content.menu.deleting}
 								</>
 							) : (
-								"Delete"
+								content.dialog.delete.confirm
 							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>
