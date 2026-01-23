@@ -1,5 +1,5 @@
 import { Image as ImageIcon, Loader2, Send, X } from "lucide-react";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useIntlayer } from "react-intlayer";
 import { toast } from "sonner";
 import { uuidv7 } from "uuidv7";

@@ -1,4 +1,3 @@
-import { Locales } from "intlayer";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useLocale } from "react-intlayer";
 
