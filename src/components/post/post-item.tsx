@@ -67,9 +67,9 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 
 	// Translation state
 	const [detectedLang, setDetectedLang] = useState<string | undefined>();
-	const [translatedContent, setTranslatedContent] = useState<string | null>(
-		null,
-	);
+	const [translatedContent, setTranslatedContent] = useState<
+		string | undefined
+	>();
 	const [isTranslationVisible, setIsTranslationVisible] = useState(false);
 	const [isTranslating, setIsTranslating] = useState(false);
 
@@ -97,7 +97,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 
 		setIsTranslating(true);
 		try {
-			const result = await tr(post.content);
+			const result = await tr(post.content, detectedLang);
 			setTranslatedContent(result);
 			setIsTranslationVisible(true);
 		} catch (error) {
