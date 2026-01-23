@@ -50,7 +50,16 @@ export function TranslatorProvider({
 		initDetector();
 	}, []);
 
-	const tr = async (s: string, sourceLang = "zh-TW") => {
+	const tr = async (s: string, sourceLang?: string) => {
+		if (!sourceLang) {
+			const detected = await detect(s);
+			if (detected) {
+				sourceLang = detected;
+			} else {
+				return s; // Fallback if detection fails
+			}
+		}
+
 		if (sourceLang === locale) return s;
 
 		// Check cache first
