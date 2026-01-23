@@ -1,5 +1,5 @@
 import { Image as ImageIcon, Loader2, Send, X } from "lucide-react";
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useIntlayer } from "react-intlayer";
 import { toast } from "sonner";
 import { uuidv7 } from "uuidv7";
@@ -38,7 +38,7 @@ interface CreatePostProps {
 
 export function CreatePost({ onPostCreated }: CreatePostProps) {
 	const { user } = useUser();
-	const contentKeys = useIntlayer("checkout"); // Reuse checkout strings
+	const contentKeys = useIntlayer("create-post"); // Reuse checkout strings
 
 	// Post Mode State
 	const [content, setContent] = useState("");
@@ -51,7 +51,6 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 	const [croppedDataUrl, setCroppedDataUrl] = useState<string | null>(null);
 	const [selectedStatus, setSelectedStatus] = useState<string | undefined>();
 	const [isCheckoutPending, startCheckoutTransition] = useTransition();
-
 	// Checkout Handlers
 	const handleCheckoutFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
@@ -81,7 +80,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 				toast.success("Check-in created successfully!");
 				onPostCreated(); // Refresh list if needed (though check-ins might be separate)
 			} catch (error) {
-				toast.error(`${contentKeys.failedMessage}${error}`);
+				toast.error(`${contentKeys.checkout.failedMessage}${error}`);
 			}
 		});
 	};
@@ -91,7 +90,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 			const newFiles = Array.from(e.target.files);
 
 			if (images.length + newFiles.length > 5) {
-				toast.error("You can only upload up to 5 images.");
+				toast.error(contentKeys.post.toasts.maxImages);
 				if (fileInputRef.current) fileInputRef.current.value = "";
 				return;
 			}
@@ -99,7 +98,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 			const validFiles: { id: string; file: File }[] = [];
 			for (const file of newFiles) {
 				if (file.size > 5 * 1024 * 1024) {
-					toast.error(`Image ${file.name} exceeds 5MB limit.`);
+					toast.error(`${contentKeys.post.toasts.sizeLimit}: ${file.name}`);
 					continue;
 				}
 				validFiles.push({ id: uuidv7(), file });
@@ -116,17 +115,17 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 
 	const handleSubmit = async () => {
 		if (!content.trim() && images.length === 0) {
-			toast.error("Post cannot be empty.");
+			toast.error(contentKeys.post.toasts.empty);
 			return;
 		}
 
 		if (content.length > 200) {
-			toast.error("Text must be less than 200 characters.");
+			toast.error(contentKeys.post.toasts.tooLong);
 			return;
 		}
 
 		if (!user) {
-			toast.error("You must be logged in to post.");
+			toast.error(contentKeys.post.toasts.login);
 			return;
 		}
 
@@ -166,13 +165,13 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 
 			if (insertError) throw insertError;
 
-			toast.success("Post created!");
+			toast.success(contentKeys.post.toasts.success);
 			setContent("");
 			setImages([]);
 			onPostCreated();
 		} catch (error) {
 			console.error("Error creating post:", error);
-			toast.error("Failed to create post. Please try again.");
+			toast.error(contentKeys.post.toasts.failed);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -182,9 +181,9 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 		<div className="border rounded-lg p-4 bg-card shadow-sm mb-6">
 			<Tabs defaultValue="post" className="w-full">
 				<TabsList className="grid w-full grid-cols-2 mb-4">
-					<TabsTrigger value="post">Post</TabsTrigger>
+					<TabsTrigger value="post">{contentKeys.post.tab}</TabsTrigger>
 					<TabsTrigger value="checkout">
-						{contentKeys.title || "Daily Check-in"}
+						{contentKeys.checkout.title}
 					</TabsTrigger>
 				</TabsList>
 
@@ -192,7 +191,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 					<div className="flex gap-4">
 						<textarea
 							className="flex-1 bg-transparent resize-none outline-none min-h-[80px] text-foreground placeholder:text-muted-foreground"
-							placeholder="What's happening?"
+							placeholder={contentKeys.post.placeholder.value}
 							value={content}
 							onChange={(e) => setContent(e.target.value)}
 							maxLength={200}
@@ -259,7 +258,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 								<Loader2 className="w-4 h-4 animate-spin" />
 							) : (
 								<>
-									Post <Send className="w-3 h-3 ml-2" />
+									{contentKeys.post.submit} <Send className="w-3 h-3 ml-2" />
 								</>
 							)}
 						</Button>
@@ -269,7 +268,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 				<TabsContent value="checkout">
 					<div className="grid gap-6 py-4">
 						<div className="grid gap-2">
-							<Label>{contentKeys.status}</Label>
+							<Label>{contentKeys.checkout.status}</Label>
 							<RadioGroup
 								value={selectedStatus}
 								onValueChange={setSelectedStatus}
@@ -286,7 +285,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 											style={{ color: status.color }}
 										>
 											{
-												contentKeys.statuses[
+												contentKeys.checkout.statuses[
 													status.name as
 														| "no_cum"
 														| "cum_in_cage"
@@ -302,7 +301,9 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 						</div>
 
 						<div className="grid gap-2">
-							<Label htmlFor="checkout-image">{contentKeys.photo}</Label>
+							<Label htmlFor="checkout-image">
+								{contentKeys.checkout.photo}
+							</Label>
 							<Input
 								id="checkout-image"
 								type="file"
@@ -323,10 +324,10 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 										<ImageCropContent />
 										<div className="flex justify-center gap-2">
 											<ImageCropApply>
-												{contentKeys.imageCrop.crop}
+												{contentKeys.checkout.imageCrop.crop}
 											</ImageCropApply>
 											<ImageCropReset>
-												{contentKeys.imageCrop.reset}
+												{contentKeys.checkout.imageCrop.reset}
 											</ImageCropReset>
 										</div>
 									</div>
@@ -336,7 +337,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 
 						{croppedDataUrl && (
 							<div className="grid gap-2">
-								<Label>{contentKeys.imageCrop.preview}</Label>
+								<Label>{contentKeys.checkout.imageCrop.preview}</Label>
 								<div className="relative aspect-square w-32 overflow-hidden rounded-md border">
 									<img
 										src={croppedDataUrl}
@@ -349,7 +350,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 									size="sm"
 									onClick={() => setCroppedDataUrl(null)}
 								>
-									{contentKeys.imageCrop.recrop}
+									{contentKeys.checkout.imageCrop.recrop}
 								</Button>
 							</div>
 						)}
@@ -360,7 +361,7 @@ export function CreatePost({ onPostCreated }: CreatePostProps) {
 							className="w-full"
 						>
 							{isCheckoutPending && <Spinner />}
-							{contentKeys.submit}
+							{contentKeys.checkout.submit}
 						</Button>
 					</div>
 				</TabsContent>
