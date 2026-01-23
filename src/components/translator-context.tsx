@@ -10,6 +10,7 @@ declare global {
 
 type TranslatorContextType = {
 	tr: (s: string) => Promise<string>;
+	detect: (s: string) => Promise<string | undefined>;
 	isLoading: boolean;
 };
 
@@ -23,13 +24,16 @@ export function TranslatorProvider({
 	children: React.ReactNode;
 }) {
 	const { locale } = useLocale();
-	const [isSupported] = useState("Translator" in self);
+	const [isSupported] = useState(
+		"Translator" in self && "LanguageDetector" in self,
+	);
 	const [availability, setAvailability] = useState<Availability>("unavailable");
 	const [_downloadProgress, setDownloadProgress] = useState<number | null>(
 		null,
 	);
 	const [isLoading, setIsLoading] = useState(false);
 	const translatorRef = useRef<Translator | null>(null);
+	const detectorRef = useRef<LanguageDetector | null>(null);
 
 	useEffect(() => {
 		const initTranslator = async () => {
@@ -72,7 +76,21 @@ export function TranslatorProvider({
 			}
 		};
 
+		const initDetector = async () => {
+			if (!("LanguageDetector" in self)) return;
+
+			const availability = await LanguageDetector.availability();
+			if (availability === "unavailable") return;
+
+			try {
+				detectorRef.current = await LanguageDetector.create();
+			} catch (error) {
+				console.error(`Failed to create LanguageDetector: ${error}`);
+			}
+		};
+
 		initTranslator();
+		initDetector();
 	}, [locale, availability, isSupported]);
 
 	const tr = async (s: string) => {
@@ -80,8 +98,21 @@ export function TranslatorProvider({
 		return await translatorRef.current.translate(s);
 	};
 
+	const detect = async (s: string) => {
+		if (!detectorRef.current) return undefined;
+		try {
+			const results = await detectorRef.current.detect(s);
+			if (results && results.length > 0) {
+				return results[0].detectedLanguage;
+			}
+		} catch (error) {
+			console.error("Error detecting language:", error);
+		}
+		return undefined;
+	};
+
 	return (
-		<TranslatorContext.Provider value={{ tr, isLoading }}>
+		<TranslatorContext.Provider value={{ tr, detect, isLoading }}>
 			{children}
 			{/* {downloadProgress && downloadProgress < 100 && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">

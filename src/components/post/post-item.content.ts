@@ -90,6 +90,28 @@ const postItemContent = {
 				en: "Failed to update post",
 			}),
 		},
+		translation: {
+			translate: t({
+				"zh-TW": "翻譯",
+				en: "Translate",
+			}),
+			translating: t({
+				"zh-TW": "翻譯中...",
+				en: "Translating...",
+			}),
+			hide: t({
+				"zh-TW": "隱藏翻譯",
+				en: "Hide Translation",
+			}),
+			failed: t({
+				"zh-TW": "翻譯失敗",
+				en: "Translation Failed",
+			}),
+			label: t({
+				"zh-TW": "由 AI 翻譯",
+				en: "Translated by AI",
+			}),
+		},
 	},
 } satisfies Dictionary;
 

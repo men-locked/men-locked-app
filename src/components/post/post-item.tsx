@@ -1,16 +1,18 @@
 import { formatDistanceToNow } from "date-fns";
 import {
 	Image as ImageIcon,
+	Languages,
 	Loader2,
 	MoreHorizontal,
 	Pencil,
 	Trash2,
 	X,
 } from "lucide-react";
-import { useRef, useState } from "react";
-import { useIntlayer } from "react-intlayer";
+import { useEffect, useRef, useState } from "react";
+import { useIntlayer, useLocale } from "react-intlayer";
 import { toast } from "sonner";
 import { uuidv7 } from "uuidv7";
+import { useTranslator } from "@/components/translator-context";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -56,10 +58,55 @@ interface PostItemProps {
 
 export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 	const { user } = useUser();
+	const { locale } = useLocale();
+	const { tr, detect } = useTranslator();
 	const content = useIntlayer("post-item");
 	const [isEditing, setIsEditing] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+	// Translation state
+	const [detectedLang, setDetectedLang] = useState<string | undefined>();
+	const [translatedContent, setTranslatedContent] = useState<string | null>(
+		null,
+	);
+	const [isTranslationVisible, setIsTranslationVisible] = useState(false);
+	const [isTranslating, setIsTranslating] = useState(false);
+
+	useEffect(() => {
+		const checkLanguage = async () => {
+			if (!post.content) return;
+			const lang = await detect(post.content);
+			if (lang) {
+				setDetectedLang(lang);
+			}
+		};
+		checkLanguage();
+	}, [post.content, detect]);
+
+	const handleTranslate = async () => {
+		if (isTranslationVisible) {
+			setIsTranslationVisible(false);
+			return;
+		}
+
+		if (translatedContent) {
+			setIsTranslationVisible(true);
+			return;
+		}
+
+		setIsTranslating(true);
+		try {
+			const result = await tr(post.content);
+			setTranslatedContent(result);
+			setIsTranslationVisible(true);
+		} catch (error) {
+			console.error("Translation failed:", error);
+			toast.error(content.translation.failed);
+		} finally {
+			setIsTranslating(false);
+		}
+	};
 
 	// Edit state
 	const [editContent, setEditContent] = useState(post.content);
@@ -263,6 +310,34 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 				<p className="mt-2 text-foreground whitespace-pre-wrap wrap-break-word">
 					{post.content}
 				</p>
+
+				{isTranslationVisible && translatedContent && (
+					<blockquote className="mt-2 border-l-2 pl-4 italic text-muted-foreground">
+						<div className="flex items-center gap-2 mb-1 text-xs font-semibold not-italic">
+							<Languages className="w-3 h-3" /> {content.translation.label}
+						</div>
+						{translatedContent}
+					</blockquote>
+				)}
+
+				{detectedLang &&
+					detectedLang !== locale &&
+					(post.content || "").trim().length > 0 && (
+						<Button
+							variant="ghost"
+							size="sm"
+							className="mt-1 h-auto p-0 text-muted-foreground hover:text-foreground w-fit"
+							onClick={handleTranslate}
+							disabled={isTranslating}
+						>
+							<Languages className="mr-2 h-3 w-3" />
+							{isTranslating
+								? content.translation.translating
+								: isTranslationVisible
+									? content.translation.hide
+									: content.translation.translate}
+						</Button>
+					)}
 
 				{post.images && post.images.length > 0 && (
 					<div className="mt-3">
