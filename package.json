@@ -42,6 +42,7 @@
 		"react": "^19.2.3",
 		"react-dom": "^19.2.3",
 		"react-image-crop": "^11.0.10",
+		"react-infinite-scroll-component": "^6.1.1",
 		"react-intlayer": "^7.5.14",
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.4.0",
