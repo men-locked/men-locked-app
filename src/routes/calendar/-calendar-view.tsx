@@ -19,7 +19,7 @@ export default function CalendarView({
 	events: Tables<"events">[];
 }) {
 	const { locale } = useLocale();
-	const content = useIntlayer("checkout-dialog");
+	const content = useIntlayer("constants");
 
 	const features: Feature[] = events.map((ev) => {
 		const statusObj = statuses.find((s) => s.id === ev.status);
@@ -31,7 +31,7 @@ export default function CalendarView({
 			status: {
 				id: statusObj?.id || "-1",
 				name:
-					(content.statuses[
+					(content.checkout_statuses[
 						statusObj?.name as
 							| "no_cum"
 							| "cum_in_cage"

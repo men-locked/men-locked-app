@@ -9,7 +9,8 @@ declare global {
 }
 
 type TranslatorContextType = {
-	tr: (s: string) => Promise<string>;
+	tr: (s: string, sourceLang?: string) => Promise<string | undefined>;
+	detect: (s: string) => Promise<string | undefined>;
 	isLoading: boolean;
 };
 
@@ -23,65 +24,105 @@ export function TranslatorProvider({
 	children: React.ReactNode;
 }) {
 	const { locale } = useLocale();
-	const [isSupported] = useState("Translator" in self);
-	const [availability, setAvailability] = useState<Availability>("unavailable");
+
 	const [_downloadProgress, setDownloadProgress] = useState<number | null>(
 		null,
 	);
 	const [isLoading, setIsLoading] = useState(false);
-	const translatorRef = useRef<Translator | null>(null);
+	const translatorsRef = useRef<Map<string, Translator>>(new Map());
+	const detectorRef = useRef<LanguageDetector | null>(null);
 
 	useEffect(() => {
-		const initTranslator = async () => {
-			if (!isSupported) return;
+		const initDetector = async () => {
+			if (!("LanguageDetector" in self)) return;
 
-			const options: TranslatorCreateOptions = {
-				sourceLanguage: "zh-TW",
-				targetLanguage: locale,
-			};
-			if (options.sourceLanguage === options.targetLanguage) return;
-
-			setAvailability(await Translator.availability(options));
-			switch (availability) {
-				case "unavailable":
-					return;
-				case "downloadable":
-				case "downloading":
-					options.monitor = (m: CreateMonitor) => {
-						m.addEventListener("downloadprogress", (e: Event) => {
-							const progressEvent = e as unknown as {
-								loaded: number;
-								total: number;
-							};
-							const percentage =
-								(progressEvent.loaded / progressEvent.total) * 100;
-							setDownloadProgress(percentage);
-							console.log(`Downloading Language Model: ${percentage}%`);
-						});
-					};
-			}
+			const availability = await LanguageDetector.availability();
+			if (availability === "unavailable") return;
 
 			try {
-				setIsLoading(true);
-				translatorRef.current = await Translator.create(options);
+				detectorRef.current = await LanguageDetector.create();
 			} catch (error) {
-				console.error(`Failed to create Translator: ${error}`);
-			} finally {
-				setIsLoading(false);
-				setDownloadProgress(null);
+				console.error(`Failed to create LanguageDetector: ${error}`);
 			}
 		};
 
-		initTranslator();
-	}, [locale, availability, isSupported]);
+		initDetector();
+	}, []);
 
-	const tr = async (s: string) => {
-		if (!translatorRef.current) return s;
-		return await translatorRef.current.translate(s);
+	const tr = async (s: string, sourceLang?: string) => {
+		if (!sourceLang) {
+			const detected = await detect(s);
+			if (detected) {
+				sourceLang = detected;
+			} else {
+				return s; // Fallback if detection fails
+			}
+		}
+
+		if (sourceLang === locale) return s;
+
+		// Check cache first
+		if (translatorsRef.current.has(sourceLang)) {
+			try {
+				return await translatorsRef.current.get(sourceLang)?.translate(s);
+			} catch (e) {
+				console.error("Translation error with cached translator:", e);
+				// If cached translator fails, maybe try recreating? For now, fall through.
+			}
+		}
+
+		// Create new translator
+		try {
+			setIsLoading(true);
+			const options: TranslatorCreateOptions = {
+				sourceLanguage: sourceLang,
+				targetLanguage: locale,
+			};
+
+			const availability = await Translator.availability(options);
+			if (availability === "unavailable") return s;
+
+			if (availability === "downloadable" || availability === "downloading") {
+				options.monitor = (m: CreateMonitor) => {
+					m.addEventListener("downloadprogress", (e: Event) => {
+						const progressEvent = e as unknown as {
+							loaded: number;
+							total: number;
+						};
+						const percentage =
+							(progressEvent.loaded / progressEvent.total) * 100;
+						setDownloadProgress(percentage);
+					});
+				};
+			}
+
+			const translator = await Translator.create(options);
+			translatorsRef.current.set(sourceLang, translator);
+			return await translator.translate(s);
+		} catch (error) {
+			console.error(`Failed to create Translator for ${sourceLang}:`, error);
+			return s;
+		} finally {
+			setIsLoading(false);
+			setDownloadProgress(null);
+		}
+	};
+
+	const detect = async (s: string) => {
+		if (!detectorRef.current) return undefined;
+		try {
+			const results = await detectorRef.current.detect(s);
+			if (results && results.length > 0) {
+				return results[0].detectedLanguage;
+			}
+		} catch (error) {
+			console.error("Error detecting language:", error);
+		}
+		return undefined;
 	};
 
 	return (
-		<TranslatorContext.Provider value={{ tr, isLoading }}>
+		<TranslatorContext.Provider value={{ tr, detect, isLoading }}>
 			{children}
 			{/* {downloadProgress && downloadProgress < 100 && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">

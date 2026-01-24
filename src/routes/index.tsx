@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckoutDialog } from "@/components/checkout-dialog";
+import { PostList } from "@/components/post/post-list";
 import { useUser } from "@/components/user-context";
 
 export const Route = createFileRoute("/")({
@@ -9,5 +9,11 @@ export const Route = createFileRoute("/")({
 function Index() {
 	const { user } = useUser();
 
-	return user ? <CheckoutDialog /> : null;
+	if (!user) return null;
+
+	return (
+		<div className="container max-w-2xl mx-auto p-4">
+			<PostList />
+		</div>
+	);
 }

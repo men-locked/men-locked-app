@@ -39,7 +39,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth/update-password': typeof AuthUpdatePasswordRoute
   '/calendar/$user': typeof CalendarUserRoute
-  '/calendar': typeof CalendarIndexRoute
+  '/calendar/': typeof CalendarIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -56,7 +56,7 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/update-password' | '/calendar/$user' | '/calendar'
+  fullPaths: '/' | '/auth/update-password' | '/calendar/$user' | '/calendar/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/auth/update-password' | '/calendar/$user' | '/calendar'
   id:
@@ -86,7 +86,7 @@ declare module '@tanstack/react-router' {
     '/calendar/': {
       id: '/calendar/'
       path: '/calendar'
-      fullPath: '/calendar'
+      fullPath: '/calendar/'
       preLoaderRoute: typeof CalendarIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
