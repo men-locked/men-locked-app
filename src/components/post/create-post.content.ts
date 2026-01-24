@@ -4,44 +4,14 @@ const createPostDialogContent = {
 	key: "create-post",
 	content: {
 		checkout: {
-			trigger: t({
-				"zh-TW": "打卡",
-				en: "Daily Verification",
-			}),
 			title: t({
 				"zh-TW": "打卡",
 				en: "Daily Verification",
-			}),
-			description: t({
-				"zh-TW": "建立打卡記錄",
-				en: "Submit daily verification",
 			}),
 			status: t({
 				"zh-TW": "今日狀態",
 				en: "Status",
 			}),
-			statuses: {
-				no_cum: t({
-					"zh-TW": "沒射",
-					en: "No Cum",
-				}),
-				cum_in_cage: t({
-					"zh-TW": "鎖射",
-					en: "Cum in Cage",
-				}),
-				jerk_off: t({
-					"zh-TW": "尻射",
-					en: "Jerk Off",
-				}),
-				wet_dream: t({
-					"zh-TW": "夢遺",
-					en: "Wet Dream",
-				}),
-				runied_orgasm: t({
-					"zh-TW": "邊緣寸止",
-					en: "Runied Orgasm",
-				}),
-			},
 			photo: t({
 				"zh-TW": "照片",
 				en: "Photo",

@@ -107,10 +107,6 @@ const postItemContent = {
 				"zh-TW": "翻譯失敗",
 				en: "Translation Failed",
 			}),
-			label: t({
-				"zh-TW": "由 AI 翻譯",
-				en: "Translated by AI",
-			}),
 		},
 	},
 } satisfies Dictionary;

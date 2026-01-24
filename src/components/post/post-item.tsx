@@ -301,9 +301,6 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 
 				{isTranslationVisible && translatedContent && (
 					<blockquote className="mt-2 border-l-2 pl-4 italic text-muted-foreground">
-						<div className="flex items-center gap-2 mb-1 text-xs font-semibold not-italic">
-							<Languages className="w-3 h-3" /> {content.translation.label}
-						</div>
 						{translatedContent}
 					</blockquote>
 				)}
