@@ -1,3 +1,4 @@
+import { Turnstile } from "@marsidev/react-turnstile";
 import type { User } from "@supabase/supabase-js";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
@@ -41,6 +42,9 @@ import { useUser } from "./user-context";
 function ForgotPasswordDialog() {
 	const content = useIntlayer("navigator");
 	const [open, setOpen] = useState(false);
+	const [captchaToken, setCaptchaToken] = useState<string | undefined>(
+		undefined,
+	);
 	const form = useForm({
 		defaultValues: {
 			email: "",
@@ -48,7 +52,10 @@ function ForgotPasswordDialog() {
 		onSubmit: async (values) => {
 			const { error } = await supabase.auth.resetPasswordForEmail(
 				values.value.email,
-				{ redirectTo: `${window.location.origin}/auth/update-password` },
+				{
+					redirectTo: `${window.location.origin}/auth/update-password`,
+					captchaToken,
+				},
 			);
 			if (error) {
 				toast.error(
@@ -98,10 +105,14 @@ function ForgotPasswordDialog() {
 								</>
 							)}
 						/>
+						<Turnstile
+							siteKey={import.meta.env.VITE_TURNSTILE_SITEKEY}
+							onSuccess={(token) => setCaptchaToken(token)}
+						/>
 						<form.Subscribe
 							selector={(state) => [state.canSubmit, state.isSubmitting]}
 							children={([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit}>
+								<Button type="submit" disabled={!canSubmit || !captchaToken}>
 									{isSubmitting && <Spinner />}
 									{content.forgotPasswordDialog.submit}
 								</Button>
@@ -117,6 +128,9 @@ function ForgotPasswordDialog() {
 function RegisterDialog() {
 	const content = useIntlayer("navigator");
 	const [open, setOpen] = useState(false);
+	const [captchaToken, setCaptchaToken] = useState<string | undefined>(
+		undefined,
+	);
 	const form = useForm({
 		defaultValues: {
 			email: "",
@@ -131,6 +145,7 @@ function RegisterDialog() {
 					data: {
 						username: values.value.email.split("@")[0],
 					},
+					captchaToken,
 				},
 			});
 			if (error) {
@@ -197,10 +212,14 @@ function RegisterDialog() {
 								</>
 							)}
 						/>
+						<Turnstile
+							siteKey={import.meta.env.VITE_TURNSTILE_SITEKEY}
+							onSuccess={(token) => setCaptchaToken(token)}
+						/>
 						<form.Subscribe
 							selector={(state) => [state.canSubmit, state.isSubmitting]}
 							children={([canSubmit, isSubmitting]) => (
-								<Button type="submit" disabled={!canSubmit}>
+								<Button type="submit" disabled={!canSubmit || !captchaToken}>
 									{isSubmitting && <Spinner />}
 									{content.registerDialog.submit}
 								</Button>
@@ -215,6 +234,9 @@ function RegisterDialog() {
 
 function LoginButton() {
 	const content = useIntlayer("navigator");
+	const [captchaToken, setCaptchaToken] = useState<string | undefined>(
+		undefined,
+	);
 	const form = useForm({
 		defaultValues: {
 			email: "",
@@ -224,6 +246,9 @@ function LoginButton() {
 			const { error } = await supabase.auth.signInWithPassword({
 				email: values.value.email,
 				password: values.value.password,
+				options: {
+					captchaToken,
+				},
 			});
 
 			if (error) {
@@ -293,19 +318,28 @@ function LoginButton() {
 						/>
 					</div>
 					<ForgotPasswordDialog />
-					<div className="grid grid-cols-2 gap-2">
-						<form.Subscribe
-							selector={(state) => [state.canSubmit, state.isSubmitting]}
-							children={([canSubmit, isSubmitting]) => (
-								<>
-									<Button type="submit" disabled={!canSubmit}>
-										{isSubmitting && <Spinner />}
-										{content.loginButton.submit}
-									</Button>
-								</>
-							)}
+					<div className="grid grid-cols-1 gap-2">
+						<Turnstile
+							siteKey={import.meta.env.VITE_TURNSTILE_SITEKEY}
+							onSuccess={(token) => setCaptchaToken(token)}
 						/>
-						<RegisterDialog />
+						<div className="grid grid-cols-2 gap-2">
+							<form.Subscribe
+								selector={(state) => [state.canSubmit, state.isSubmitting]}
+								children={([canSubmit, isSubmitting]) => (
+									<>
+										<Button
+											type="submit"
+											disabled={!canSubmit || !captchaToken}
+										>
+											{isSubmitting && <Spinner />}
+											{content.loginButton.submit}
+										</Button>
+									</>
+								)}
+							/>
+							<RegisterDialog />
+						</div>
 					</div>
 				</form>
 			</PopoverContent>
