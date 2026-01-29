@@ -42,6 +42,7 @@
 		"radix-ui": "^1.4.3",
 		"react": "^19.2.3",
 		"react-dom": "^19.2.3",
+		"react-ga4": "^2.1.0",
 		"react-image-crop": "^11.0.10",
 		"react-infinite-scroll-component": "^6.1.1",
 		"react-intlayer": "^7.5.14",

@@ -1,4 +1,4 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./__root.css";
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -11,6 +11,7 @@ import Navigator from "@/components/navigator";
 import { TranslatorProvider } from "@/components/translator-context";
 import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/components/user-context";
+import { logPageView } from "@/lib/analytics";
 
 const RootLayout = () => {
 	const { defaultLocale } = useLocale();
@@ -18,6 +19,11 @@ const RootLayout = () => {
 		"locale",
 		undefined,
 	);
+	const location = useLocation();
+
+	useEffect(() => {
+		logPageView(location.pathname);
+	}, [location.pathname]);
 
 	useEffect(() => {
 		if (!locale) setLocale(defaultLocale);
