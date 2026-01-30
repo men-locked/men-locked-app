@@ -46,6 +46,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ImageZoom } from "@/components/ui/image-zoom";
 import { useUser } from "@/components/user-context";
 import { supabase } from "@/lib/supabase/client";
 import type { PostWithProfile } from "./types";
@@ -329,11 +330,13 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 					<div className="mt-3">
 						{post.images.length === 1 ? (
 							<div className="rounded-md overflow-hidden border border-border max-h-[400px] w-fit">
-								<img
-									src={post.images[0]}
-									alt="Post attachment"
-									className="max-w-full h-auto object-cover"
-								/>
+								<ImageZoom>
+									<img
+										src={post.images[0]}
+										alt="Post attachment"
+										className="max-w-full h-auto object-cover"
+									/>
+								</ImageZoom>
 							</div>
 						) : (
 							<Carousel className="w-full max-w-[90%] mx-auto">
@@ -341,11 +344,15 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 									{post.images.map((url: string, idx: number) => (
 										<CarouselItem key={url}>
 											<div className="p-1">
-												<img
-													src={url}
-													alt={`Slide ${idx + 1}`}
-													className="rounded-md object-cover w-full max-h-[400px]"
-												/>
+												<div className="rounded-md overflow-hidden w-full max-h-[400px]">
+													<ImageZoom>
+														<img
+															src={url}
+															alt={`Slide ${idx + 1}`}
+															className="rounded-md object-cover w-full h-full"
+														/>
+													</ImageZoom>
+												</div>
 											</div>
 										</CarouselItem>
 									))}
