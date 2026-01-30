@@ -130,6 +130,7 @@ export function PostItem({ post, onUpdate, onDelete }: PostItemProps) {
 
 			if (error) throw error;
 
+			// toast.success(content.toasts.deleteSuccess);
 			toast.success(content.toasts.deleteSuccess);
 			setShowDeleteDialog(false);
 			onDelete();
